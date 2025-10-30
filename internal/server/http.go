@@ -85,7 +85,6 @@ func New(addr int) *http.Server {
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /", httpServer.handleProduce)
 	mux.HandleFunc("GET /", httpServer.handleConsume)
-
 	return &http.Server{
 		Addr:    fmt.Sprintf(":%d", addr),
 		Handler: mux,
