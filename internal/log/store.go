@@ -59,7 +59,7 @@ func (s *store) Append(p []byte) (n uint64, pos uint64, err error) {
 
 	w += lenWidth
 	s.size += uint64(w)
-	s.buf.Flush()
+
 	return uint64(w), pos, nil
 }
 
@@ -97,7 +97,7 @@ func (s *store) ReadAt(p []byte, off int64) (int, error) {
 	return s.File.ReadAt(p, off)
 }
 
-// Close closes the file, it fluses the buffer before closing the file, in case there are records in the buffer
+// Close closes the file, it flushes the buffer before closing the file, in case there are records in the buffer
 func (s *store) Close() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
