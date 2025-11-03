@@ -23,11 +23,32 @@ func TestStoreAppenRead(t *testing.T) {
 	testAppend(t, s)
 
 	testRead(t, s)
+	testReatAt(t, s)
 
 	s, err = NewStore(f)
 	require.NoError(t, err)
 
 	testRead(t, s)
+}
+
+func testReatAt(t *testing.T, s *store) {
+	t.Helper()
+
+	for i, off := uint64(1), int64(0); i < 4; i++ {
+		b := make([]byte, lenWidth)
+		n, err := s.ReadAt(b, off)
+		require.NoError(t, err)
+		require.Equal(t, lenWidth, n)
+		off += int64(n)
+
+		size := enc.Uint64(b)
+		b = make([]byte, size)
+		n, err = s.ReadAt(b, off)
+		require.NoError(t, err)
+		require.Equal(t, write, b)
+		require.Equal(t, int(size), n)
+		off += int64(n)
+	}
 
 }
 
