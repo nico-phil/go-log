@@ -1,0 +1,23 @@
+package log
+
+import (
+	"os"
+
+	"github.com/tysonmote/gommap"
+)
+
+var (
+	offWidth uint64 = 4
+	posWidth uint64 = 8
+	entWidth        = offWidth + posWidth
+)
+
+type Index struct {
+	file *os.File
+	mmap gommap.MMap
+	size uint64
+}
+
+func newIndex(f *os.File) (*Index, error) {
+	return nil, nil
+}
