@@ -18,6 +18,32 @@ type Index struct {
 	size uint64
 }
 
-func newIndex(f *os.File) (*Index, error) {
-	return nil, nil
+type Config struct {
+	Segment struct {
+		MaxStoreBytes uint64
+		MaxIndexBytes uint64
+		InitialOffset uint64
+	}
+}
+
+func newIndex(f *os.File, c Config) (*Index, error) {
+	idx := &Index{
+		file: f,
+	}
+
+	fi, err := os.Stat(f.Name())
+	if err != nil {
+		return nil, err
+	}
+
+	idx.size = uint64(fi.Size())
+	if err := os.Truncate(fi.Name(), int64(c.Segment.MaxIndexBytes)); err != nil {
+		return nil, err
+	}
+
+	if idx.mmap, err = gommap.Map(idx.file.Fd(), gommap.PROT_READ|gommap.PROT_WRITE, gommap.MAP_SHARED); err != nil {
+		return nil, err
+	}
+
+	return idx, nil
 }
