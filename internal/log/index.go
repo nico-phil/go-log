@@ -84,6 +84,20 @@ func (i *Index) Read(in int64) (out uint32, pos uint64, err error) {
 
 }
 
+// Write appends the given offset and position to the index file
+func (i *Index) Write(off uint32, pos uint64) error {
+	if uint64(len(i.mmap)) < i.size+entWidth {
+		return io.EOF
+	}
+
+	// encode the offset and write it to the memory-mapped file
+	enc.PutUint32(i.mmap[i.size:offWidth], off)
+	// encode the position and write it to the memory-mapped file
+	enc.PutUint64(i.mmap[i.size+offWidth:i.size+entWidth], pos)
+	i.size += uint64(entWidth)
+	return nil
+}
+
 // Close closes the index file. it syncs its data and persists the data to stable storage
 func (i *Index) Close() error {
 	if err := i.mmap.Sync(gommap.MS_SYNC); err != nil {
