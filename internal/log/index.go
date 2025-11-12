@@ -8,12 +8,15 @@ import (
 )
 
 var (
+	// offWidth represents the number of bytes use to store the offset
 	offWidth uint64 = 4
+	// posWidth represents the number of bytes use to store the position
 	posWidth uint64 = 8
-	entWidth        = offWidth + posWidth
+
+	entWidth = offWidth + posWidth
 )
 
-// index: offset and postition
+// index: offset and postition in the store file
 
 // Index represents the file we store index entries
 type Index struct {
@@ -55,19 +58,6 @@ func NewIndex(f *os.File, c Config) (*Index, error) {
 	return idx, nil
 }
 
-// Close closes the index file. it syncs its data and persists the data to stable storage
-func (i *Index) Close() error {
-	if err := i.mmap.Sync(gommap.MS_SYNC); err != nil {
-		return err
-	}
-
-	if err := i.file.Sync(); err != nil {
-		return err
-	}
-
-	return i.file.Close()
-}
-
 // Read takes an offset and return the associated record's position in the store
 func (i *Index) Read(in int64) (out uint32, pos uint64, err error) {
 	if i.size == 0 {
@@ -92,4 +82,17 @@ func (i *Index) Read(in int64) (out uint32, pos uint64, err error) {
 
 	return out, pos, nil
 
+}
+
+// Close closes the index file. it syncs its data and persists the data to stable storage
+func (i *Index) Close() error {
+	if err := i.mmap.Sync(gommap.MS_SYNC); err != nil {
+		return err
+	}
+
+	if err := i.file.Sync(); err != nil {
+		return err
+	}
+
+	return i.file.Close()
 }
