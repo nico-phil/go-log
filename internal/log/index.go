@@ -1,6 +1,7 @@
 package log
 
 import (
+	"io"
 	"os"
 
 	"github.com/tysonmote/gommap"
@@ -12,12 +13,17 @@ var (
 	entWidth        = offWidth + posWidth
 )
 
+// index: offset and postition
+
+// Index represents the file we store index entries
 type Index struct {
 	file *os.File
 	mmap gommap.MMap
+	// size tell us the index and where to write the next entry
 	size uint64
 }
 
+// Config represents configuration for the index file
 type Config struct {
 	Segment struct {
 		MaxStoreBytes uint64
@@ -26,7 +32,8 @@ type Config struct {
 	}
 }
 
-func newIndex(f *os.File, c Config) (*Index, error) {
+// NewIndex creates an Index for the given file
+func NewIndex(f *os.File, c Config) (*Index, error) {
 	idx := &Index{
 		file: f,
 	}
@@ -46,4 +53,43 @@ func newIndex(f *os.File, c Config) (*Index, error) {
 	}
 
 	return idx, nil
+}
+
+// Close closes the index file. it syncs its data and persists the data to stable storage
+func (i *Index) Close() error {
+	if err := i.mmap.Sync(gommap.MS_SYNC); err != nil {
+		return err
+	}
+
+	if err := i.file.Sync(); err != nil {
+		return err
+	}
+
+	return i.file.Close()
+}
+
+// Read takes an offset and return the associated record's position in the store
+func (i *Index) Read(in int64) (out uint32, pos uint64, err error) {
+	if i.size == 0 {
+		return 0, 0, io.EOF
+	}
+
+	if in == -1 {
+		out = uint32((i.size / entWidth) - 1)
+	} else {
+		out = uint32(in)
+	}
+
+	pos = uint64(out) * entWidth
+
+	if i.size < pos+entWidth {
+		return 0, 0, io.EOF
+	}
+
+	out = enc.Uint32(i.mmap[pos : pos+offWidth])
+
+	pos = enc.Uint64(i.mmap[pos+offWidth : pos+entWidth])
+
+	return out, pos, nil
+
 }
