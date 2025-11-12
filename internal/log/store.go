@@ -42,6 +42,7 @@ func NewStore(f *os.File) (*store, error) {
 }
 
 // Append store record to the buffer to minimize system call, later we call flush to persist the record into the file
+// format: (record length in binary: record). ex: 101first
 func (s *store) Append(p []byte) (n uint64, pos uint64, err error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -63,7 +64,7 @@ func (s *store) Append(p []byte) (n uint64, pos uint64, err error) {
 	return uint64(w), pos, nil
 }
 
-// Read read a record from the file stored a given position, it flush the buffer before in case we want to read a record that has not flused yet
+// Read reads a record from the file stored a given position, it flush the buffer before in case we want to read a record that has not flused yet
 func (s *store) Read(pos uint64) ([]byte, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -72,11 +73,13 @@ func (s *store) Read(pos uint64) ([]byte, error) {
 		return nil, err
 	}
 
+	// Read the binary length, to know how many byte the record is
 	size := make([]byte, lenWidth)
 	if _, err := s.File.ReadAt(size, int64(pos)); err != nil {
 		return nil, err
 	}
 
+	// read the actual record
 	b := make([]byte, enc.Uint64(size))
 	fmt.Println("b", b)
 	if _, err := s.File.ReadAt(b, int64(pos+lenWidth)); err != nil {
@@ -86,7 +89,7 @@ func (s *store) Read(pos uint64) ([]byte, error) {
 	return b, nil
 }
 
-// ReadAt read record from the file begining a the offset
+// ReadAt read record from the file begining a the offset. It's implement the File.ReadAt interface
 func (s *store) ReadAt(p []byte, off int64) (int, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
