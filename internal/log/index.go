@@ -98,6 +98,11 @@ func (i *Index) Write(off uint32, pos uint64) error {
 	return nil
 }
 
+// Name return the index's file path
+func (i *Index) Name() string {
+	return i.file.Name()
+}
+
 // Close closes the index file. it syncs its data and persists the data to stable storage
 func (i *Index) Close() error {
 	if err := i.mmap.Sync(gommap.MS_SYNC); err != nil {
