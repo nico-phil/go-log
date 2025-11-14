@@ -1,6 +1,7 @@
 package log
 
 import (
+	"fmt"
 	"io"
 	"os"
 
@@ -21,7 +22,7 @@ var (
 // Index represents the file we store index entries
 type Index struct {
 	file *os.File
-	mmap gommap.MMap
+	MMap gommap.MMap
 	// size tell us the index and where to write the next entry
 	size uint64
 }
@@ -51,7 +52,7 @@ func NewIndex(f *os.File, c Config) (*Index, error) {
 		return nil, err
 	}
 
-	if idx.mmap, err = gommap.Map(idx.file.Fd(), gommap.PROT_READ|gommap.PROT_WRITE, gommap.MAP_SHARED); err != nil {
+	if idx.MMap, err = gommap.Map(idx.file.Fd(), gommap.PROT_READ|gommap.PROT_WRITE, gommap.MAP_SHARED); err != nil {
 		return nil, err
 	}
 
@@ -76,9 +77,9 @@ func (i *Index) Read(in int64) (out uint32, pos uint64, err error) {
 		return 0, 0, io.EOF
 	}
 
-	out = enc.Uint32(i.mmap[pos : pos+offWidth])
+	out = enc.Uint32(i.MMap[pos : pos+offWidth])
 
-	pos = enc.Uint64(i.mmap[pos+offWidth : pos+entWidth])
+	pos = enc.Uint64(i.MMap[pos+offWidth : pos+entWidth])
 
 	return out, pos, nil
 
@@ -86,15 +87,18 @@ func (i *Index) Read(in int64) (out uint32, pos uint64, err error) {
 
 // Write appends the given offset and position to the index file
 func (i *Index) Write(off uint32, pos uint64) error {
-	if uint64(len(i.mmap)) < i.size+entWidth {
+	if uint64(len(i.MMap)) < i.size+entWidth {
 		return io.EOF
 	}
 
 	// encode the offset and write it to the memory-mapped file
-	enc.PutUint32(i.mmap[i.size:i.size+offWidth], off)
+	enc.PutUint32(i.MMap[i.size:i.size+offWidth], off)
 	// encode the position and write it to the memory-mapped file
-	enc.PutUint64(i.mmap[i.size+offWidth:i.size+entWidth], pos)
+	enc.PutUint64(i.MMap[i.size+offWidth:i.size+entWidth], pos)
 	i.size += uint64(entWidth)
+
+	err := i.MMap.Sync(gommap.MS_SYNC)
+	fmt.Println(err)
 	return nil
 }
 
@@ -105,7 +109,7 @@ func (i *Index) Name() string {
 
 // Close closes the index file. it syncs its data and persists the data to stable storage
 func (i *Index) Close() error {
-	if err := i.mmap.Sync(gommap.MS_SYNC); err != nil {
+	if err := i.MMap.Sync(gommap.MS_SYNC); err != nil {
 		return err
 	}
 
