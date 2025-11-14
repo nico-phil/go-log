@@ -49,14 +49,14 @@ func main() {
 		fmt.Println("newIndexFile:", err)
 		return
 	}
-	// newIndexFile.Write(0, 0)
+
 	newIndexFile.Write(1, 10)
 	newIndexFile.Write(2, 6)
 	resBuf := make([]byte, 1024)
 
 	fmt.Println(newIndexFile.MMap)
 
-	f.Read(resBuf)
-	fmt.Println("resBuf", string(resBuf[0:]))
+	nu, _ := f.Read(resBuf)
+	fmt.Println("resBuf", string(resBuf[0:nu]))
 
 }

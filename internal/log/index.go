@@ -1,7 +1,6 @@
 package log
 
 import (
-	"fmt"
 	"io"
 	"os"
 
@@ -96,9 +95,6 @@ func (i *Index) Write(off uint32, pos uint64) error {
 	// encode the position and write it to the memory-mapped file
 	enc.PutUint64(i.MMap[i.size+offWidth:i.size+entWidth], pos)
 	i.size += uint64(entWidth)
-
-	err := i.MMap.Sync(gommap.MS_SYNC)
-	fmt.Println(err)
 	return nil
 }
 
