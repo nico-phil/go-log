@@ -36,5 +36,27 @@ func main() {
 
 	d2, _ := s.Read(pos)
 	fmt.Println("d2", string(d2))
+	fmt.Println("------------------------------------")
+
+	fIn, err := os.Create("index_test")
+	if err != nil {
+		return
+	}
+	c := log.Config{}
+	c.Segment.MaxIndexBytes = 1024
+	newIndexFile, err := log.NewIndex(fIn, c)
+	if err != nil {
+		fmt.Println("newIndexFile:", err)
+		return
+	}
+	// newIndexFile.Write(0, 0)
+	newIndexFile.Write(1, 10)
+	newIndexFile.Write(2, 6)
+	resBuf := make([]byte, 1024)
+
+	fmt.Println(newIndexFile.MMap)
+
+	f.Read(resBuf)
+	fmt.Println("resBuf", string(resBuf[0:]))
 
 }

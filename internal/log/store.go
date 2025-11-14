@@ -3,7 +3,6 @@ package log
 import (
 	"bufio"
 	"encoding/binary"
-	"fmt"
 	"os"
 	"sync"
 )
@@ -81,7 +80,6 @@ func (s *store) Read(pos uint64) ([]byte, error) {
 
 	// read the actual record
 	b := make([]byte, enc.Uint64(size))
-	fmt.Println("b", b)
 	if _, err := s.File.ReadAt(b, int64(pos+lenWidth)); err != nil {
 		return nil, err
 	}
