@@ -113,5 +113,9 @@ func (i *Index) Close() error {
 		return err
 	}
 
+	if err := os.Truncate(i.file.Name(), int64(i.size)); err != nil {
+		return err
+	}
+
 	return i.file.Close()
 }
