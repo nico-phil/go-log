@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"os"
 	"path"
+
+	api "github.com/nico-phil/go-log/api/v1"
+	"google.golang.org/protobuf/proto"
 )
 
 // Sement ties a store and an index together
@@ -16,7 +19,7 @@ type segment struct {
 }
 
 // newSegment create a new segment when the current active segment hits max size
-func newSegment(dir string, baseOffset uint64, c Config) (*segment, error) {
+func NewSegment(dir string, baseOffset uint64, c Config) (*segment, error) {
 	s := &segment{
 		baseOffset: baseOffset,
 		config:     c,
@@ -24,7 +27,7 @@ func newSegment(dir string, baseOffset uint64, c Config) (*segment, error) {
 
 	var err error
 	storeFile, err := os.OpenFile(
-		path.Join(dir, fmt.Sprintf("%d%s", baseOffset, ".store")),
+		path.Join(dir, fmt.Sprintf("%d%s", baseOffset, ".store")), //data/0.store
 		os.O_RDWR|os.O_CREATE|os.O_APPEND,
 		0644,
 	)
@@ -59,4 +62,31 @@ func newSegment(dir string, baseOffset uint64, c Config) (*segment, error) {
 	}
 
 	return s, nil
+}
+
+// Append appends the record to the store and the index file
+func (s *segment) Append(record *api.Record) (offset uint64, err error) {
+	curr := s.nextOffset
+	record.Id = int64(curr)
+
+	p, err := proto.Marshal(record)
+	if err != nil {
+		return 0, err
+	}
+
+	_, pos, err := s.store.Append(p)
+	if err != nil {
+		return 0, err
+	}
+
+	if err := s.index.Write(
+		uint32(s.nextOffset-uint64(s.baseOffset)),
+		pos,
+	); err != nil {
+		return 0, err
+	}
+
+	s.nextOffset++
+
+	return curr, nil
 }
