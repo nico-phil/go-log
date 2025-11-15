@@ -13,7 +13,7 @@ var (
 	// posWidth represents the number of bytes use to store the position
 	posWidth uint64 = 8
 
-	entWidth = offWidth + posWidth
+	entryWidth = offWidth + posWidth
 )
 
 // index: offset and postition in the store file
@@ -56,20 +56,20 @@ func (i *index) Read(in int64) (out uint32, pos uint64, err error) {
 	}
 
 	if in == -1 {
-		out = uint32((i.size / entWidth) - 1)
+		out = uint32((i.size / entryWidth) - 1)
 	} else {
 		out = uint32(in)
 	}
 
-	pos = uint64(out) * entWidth
+	pos = uint64(out) * entryWidth
 
-	if i.size < pos+entWidth {
+	if i.size < pos+entryWidth {
 		return 0, 0, io.EOF
 	}
 
 	out = enc.Uint32(i.MMap[pos : pos+offWidth])
 
-	pos = enc.Uint64(i.MMap[pos+offWidth : pos+entWidth])
+	pos = enc.Uint64(i.MMap[pos+offWidth : pos+entryWidth])
 
 	return out, pos, nil
 
@@ -77,15 +77,15 @@ func (i *index) Read(in int64) (out uint32, pos uint64, err error) {
 
 // Write appends the given offset and position to the index file
 func (i *index) Write(off uint32, pos uint64) error {
-	if uint64(len(i.MMap)) < i.size+entWidth {
+	if uint64(len(i.MMap)) < i.size+entryWidth {
 		return io.EOF
 	}
 
 	// encode the offset and write it to the memory-mapped file
 	enc.PutUint32(i.MMap[i.size:i.size+offWidth], off)
 	// encode the position and write it to the memory-mapped file
-	enc.PutUint64(i.MMap[i.size+offWidth:i.size+entWidth], pos)
-	i.size += uint64(entWidth)
+	enc.PutUint64(i.MMap[i.size+offWidth:i.size+entryWidth], pos)
+	i.size += uint64(entryWidth)
 	return nil
 }
 
