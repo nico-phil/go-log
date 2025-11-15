@@ -19,25 +19,16 @@ var (
 // index: offset and postition in the store file
 
 // Index represents the file we store index entries
-type Index struct {
+type index struct {
 	file *os.File
 	MMap gommap.MMap
 	// size tell us the index and where to write the next entry
 	size uint64
 }
 
-// Config represents configuration for the index file
-type Config struct {
-	Segment struct {
-		MaxStoreBytes uint64
-		MaxIndexBytes uint64
-		InitialOffset uint64
-	}
-}
-
 // NewIndex creates an Index for the given file
-func NewIndex(f *os.File, c Config) (*Index, error) {
-	idx := &Index{
+func NewIndex(f *os.File, c Config) (*index, error) {
+	idx := &index{
 		file: f,
 	}
 
@@ -59,7 +50,7 @@ func NewIndex(f *os.File, c Config) (*Index, error) {
 }
 
 // Read takes an offset and return the associated record's position in the store
-func (i *Index) Read(in int64) (out uint32, pos uint64, err error) {
+func (i *index) Read(in int64) (out uint32, pos uint64, err error) {
 	if i.size == 0 {
 		return 0, 0, io.EOF
 	}
@@ -85,7 +76,7 @@ func (i *Index) Read(in int64) (out uint32, pos uint64, err error) {
 }
 
 // Write appends the given offset and position to the index file
-func (i *Index) Write(off uint32, pos uint64) error {
+func (i *index) Write(off uint32, pos uint64) error {
 	if uint64(len(i.MMap)) < i.size+entWidth {
 		return io.EOF
 	}
@@ -99,12 +90,12 @@ func (i *Index) Write(off uint32, pos uint64) error {
 }
 
 // Name returns the index's file path
-func (i *Index) Name() string {
+func (i *index) Name() string {
 	return i.file.Name()
 }
 
 // Close closes the index file. it syncs its data and persists the data to stable storage
-func (i *Index) Close() error {
+func (i *index) Close() error {
 	if err := i.MMap.Sync(gommap.MS_SYNC); err != nil {
 		return err
 	}
