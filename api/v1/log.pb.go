@@ -23,8 +23,8 @@ const (
 
 type Record struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Value         string                 `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
+	Value         []byte                 `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
+	Offset        uint64                 `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -59,18 +59,18 @@ func (*Record) Descriptor() ([]byte, []int) {
 	return file_api_v1_log_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *Record) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *Record) GetValue() string {
+func (x *Record) GetValue() []byte {
 	if x != nil {
 		return x.Value
 	}
-	return ""
+	return nil
+}
+
+func (x *Record) GetOffset() uint64 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
 }
 
 type ReadRequest struct {
@@ -253,10 +253,10 @@ var File_api_v1_log_proto protoreflect.FileDescriptor
 
 const file_api_v1_log_proto_rawDesc = "" +
 	"\n" +
-	"\x10api/v1/log.proto\x12\x06log.v1\".\n" +
-	"\x06Record\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value\"%\n" +
+	"\x10api/v1/log.proto\x12\x06log.v1\"6\n" +
+	"\x06Record\x12\x14\n" +
+	"\x05value\x18\x01 \x01(\fR\x05value\x12\x16\n" +
+	"\x06offset\x18\x02 \x01(\x04R\x06offset\"%\n" +
 	"\vReadRequest\x12\x16\n" +
 	"\x06offset\x18\x01 \x01(\x03R\x06offset\"6\n" +
 	"\fReadResponse\x12&\n" +
