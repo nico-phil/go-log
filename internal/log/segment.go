@@ -2,6 +2,7 @@ package log
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path"
 
@@ -56,6 +57,7 @@ func NewSegment(dir string, baseOffset uint64, c Config) (*segment, error) {
 
 	off, _, err := s.index.Read(-1)
 	if err != nil {
+		log.Printf("read(-1) %v", err)
 		s.nextOffset = baseOffset
 	} else {
 		s.nextOffset = baseOffset + uint64(off) + 1
