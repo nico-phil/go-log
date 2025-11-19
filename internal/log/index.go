@@ -36,8 +36,9 @@ func NewIndex(f *os.File, c Config) (*index, error) {
 	if err != nil {
 		return nil, err
 	}
+	size := uint64(fi.Size())
+	idx.size = size
 
-	idx.size = uint64(fi.Size())
 	if err := os.Truncate(f.Name(), int64(c.Segment.MaxIndexBytes)); err != nil {
 		return nil, err
 	}
@@ -86,6 +87,11 @@ func (i *index) Write(off uint32, pos uint64) error {
 	// encode the position and write it to the memory-mapped file
 	enc.PutUint64(i.MMap[i.size+offWidth:i.size+entryWidth], pos)
 	i.size += uint64(entryWidth)
+
+	if err := i.MMap.Sync(gommap.MS_SYNC); err != nil {
+		return err
+	}
+
 	return nil
 }
 

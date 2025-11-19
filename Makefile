@@ -19,3 +19,7 @@ test:
 
 tidy:
 	go mod tidy
+
+
+debug:
+	dlv debug cmd/main.go
