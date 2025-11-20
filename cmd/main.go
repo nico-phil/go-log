@@ -17,6 +17,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer sg.Close()
 
 	fmt.Printf("%+v", *sg)
 	r := api.Record{
@@ -29,5 +30,4 @@ func main() {
 	}
 
 	fmt.Println(off)
-
 }
