@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+
+	api "github.com/nico-phil/go-log/api/v1"
 )
 
 // @Todo: later, i should unexport some filed for better api design. i should not expose to users some
@@ -87,4 +89,22 @@ func (l *Log) newSegment(off uint64) error {
 	l.Segments = append(l.Segments, s)
 	l.ActiveSegment = s
 	return nil
+}
+
+// Append append a log record to the system
+func (l *Log) Append(record *api.Record) (uint64, error) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	off, err := l.ActiveSegment.Append(record)
+	if err != nil {
+		return 0, err
+	}
+
+	if l.ActiveSegment.IsMaxed() {
+		if err = l.newSegment(off + 1); err != nil {
+			return 0, err
+		}
+	}
+
+	return off, nil
 }
