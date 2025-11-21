@@ -43,7 +43,13 @@ func NewIndex(f *os.File, c Config) (*index, error) {
 		return nil, err
 	}
 
-	if idx.MMap, err = gommap.Map(idx.file.Fd(), gommap.PROT_READ|gommap.PROT_WRITE, gommap.MAP_SHARED); err != nil {
+	idx.MMap, err = gommap.Map(
+		idx.file.Fd(),
+		gommap.PROT_READ|gommap.PROT_WRITE,
+		gommap.MAP_SHARED,
+	)
+
+	if err != nil {
 		return nil, err
 	}
 
@@ -87,11 +93,6 @@ func (i *index) Write(off uint32, pos uint64) error {
 	// encode the position and write it to the memory-mapped file
 	enc.PutUint64(i.MMap[i.size+offWidth:i.size+entryWidth], pos)
 	i.size += uint64(entryWidth)
-
-	if err := i.MMap.Sync(gommap.MS_SYNC); err != nil {
-		return err
-	}
-
 	return nil
 }
 

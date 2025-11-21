@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"log"
 
-	api "github.com/nico-phil/go-log/api/v1"
-
 	llog "github.com/nico-phil/go-log/internal/log"
 )
 
@@ -19,15 +17,26 @@ func main() {
 	}
 	defer sg.Close()
 
-	fmt.Printf("%+v", *sg)
-	r := api.Record{
-		Value: []byte("hello world"),
-	}
+	fmt.Printf("%+v\n", *sg)
+	// r := api.Record{
+	// 	Value: []byte("hello world"),
+	// }
 
-	off, err := sg.Append(&r)
-	if err != nil {
-		log.Fatal("append(main):\n", err)
-	}
+	// off, err := sg.Append(&r)
+	// if err != nil {
+	// 	log.Fatal("append(main):\n", err)
+	// }
 
-	fmt.Println(off)
+	// fmt.Println("offset: ", off)
+
+	// r1, err := sg.Read(off)
+	// if err != nil {
+	// 	return
+	// }
+
+	// fmt.Println("record: ", r1)
+
+	_, pos, _ := sg.ReadIndex(0)
+	fmt.Println("position:", pos)
+
 }
