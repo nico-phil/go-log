@@ -14,7 +14,7 @@ func TestSegment(t *testing.T) {
 
 	c := Config{}
 	c.Segment.MaxStoreBytes = 1024
-	c.Segment.MaxIndexBytes = entryWidth * 3
+	c.Segment.MaxIndexBytes = entryWidth * 3 //36 bytes
 
 	want := api.Record{Value: []byte("hello world")}
 
