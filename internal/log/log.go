@@ -32,10 +32,9 @@ func NewLog(dir string, c Config) (*Log, error) {
 	if c.Segment.MaxIndexBytes == 0 {
 		c.Segment.MaxIndexBytes = 1024
 	}
-	return &Log{
-		Dir:    dir,
-		Config: c,
-	}, nil
+
+	l := Log{Dir: dir, Config: c}
+	return &l, l.setup()
 }
 
 func (l *Log) setup() error {
