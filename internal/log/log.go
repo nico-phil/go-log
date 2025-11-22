@@ -37,6 +37,7 @@ func NewLog(dir string, c Config) (*Log, error) {
 	return &l, l.setup()
 }
 
+// setup, reads all the files in the log dir, setup segment for each of them
 func (l *Log) setup() error {
 	files, err := os.ReadDir(l.Dir)
 	if err != nil {
