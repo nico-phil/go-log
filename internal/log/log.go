@@ -91,7 +91,7 @@ func (l *Log) newSegment(off uint64) error {
 	return nil
 }
 
-// Append append a log record to the system
+// Append append a log record to the system, it return the offset and and error
 func (l *Log) Append(record *api.Record) (uint64, error) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
