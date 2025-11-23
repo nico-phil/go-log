@@ -1,6 +1,7 @@
 package log
 
 import (
+	"fmt"
 	"os"
 	"path"
 	"sort"
@@ -16,7 +17,7 @@ import (
 
 // Log represents a Log, this is api that control the WAL
 type Log struct {
-	mu            sync.Mutex
+	mu            sync.RWMutex
 	Dir           string
 	Config        Config
 	ActiveSegment *segment
@@ -107,4 +108,21 @@ func (l *Log) Append(record *api.Record) (uint64, error) {
 	}
 
 	return off, nil
+}
+
+// Read takes an offet and return a record
+func (l *Log) Read(off uint64) (*api.Record, error) {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+	var s *segment
+	for _, segment := range l.Segments {
+		if segment.baseOffset <= off && off < segment.nextOffset {
+			s = segment
+			break
+		}
+	}
+	if s == nil || s.nextOffset <= off {
+		return nil, fmt.Errorf("offset out of range: %d", off)
+	}
+	return s.Read(off)
 }
