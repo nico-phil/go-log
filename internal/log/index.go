@@ -56,7 +56,21 @@ func NewIndex(f *os.File, c Config) (*index, error) {
 	return idx, nil
 }
 
-// Read takes an offset and return the associated record's position in the store
+// Write appends the given offset and position to the index file
+func (i *index) Write(off uint32, pos uint64) error {
+	if uint64(len(i.MMap)) < i.size+entryWidth {
+		return io.EOF
+	}
+
+	// encode the offset and write it to the memory-mapped file
+	enc.PutUint32(i.MMap[i.size:i.size+offWidth], off)
+	// encode the position and write it to the memory-mapped file
+	enc.PutUint64(i.MMap[i.size+offWidth:i.size+entryWidth], pos)
+	i.size += uint64(entryWidth)
+	return nil
+}
+
+// Read takes an index and return the associated record's position in the store
 func (i *index) Read(in int64) (out uint32, pos uint64, err error) {
 	if i.size == 0 {
 		return 0, 0, io.EOF
@@ -80,20 +94,6 @@ func (i *index) Read(in int64) (out uint32, pos uint64, err error) {
 
 	return out, pos, nil
 
-}
-
-// Write appends the given offset and position to the index file
-func (i *index) Write(off uint32, pos uint64) error {
-	if uint64(len(i.MMap)) < i.size+entryWidth {
-		return io.EOF
-	}
-
-	// encode the offset and write it to the memory-mapped file
-	enc.PutUint32(i.MMap[i.size:i.size+offWidth], off)
-	// encode the position and write it to the memory-mapped file
-	enc.PutUint64(i.MMap[i.size+offWidth:i.size+entryWidth], pos)
-	i.size += uint64(entryWidth)
-	return nil
 }
 
 // Name returns the index's file path
