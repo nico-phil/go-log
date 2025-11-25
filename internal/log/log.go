@@ -110,7 +110,7 @@ func (l *Log) Append(record *api.Record) (uint64, error) {
 	return off, nil
 }
 
-// Read takes an offet and return a record
+// Read takes an offet and return a record and error
 func (l *Log) Read(off uint64) (*api.Record, error) {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
