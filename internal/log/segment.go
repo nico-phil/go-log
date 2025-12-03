@@ -14,7 +14,7 @@ import (
 type segment struct {
 	store      *store
 	index      *index
-	baseOffset uint64
+	baseOffset uint64 // the segment baseoffset is the offset in the mmap
 	nextOffset uint64
 	config     Config
 }
@@ -66,7 +66,7 @@ func NewSegment(dir string, baseOffset uint64, c Config) (*segment, error) {
 	return s, nil
 }
 
-// Append appends the record to the store and the index file
+// Append appends the record to the store and the index file, it returs the offset of the newly appended record
 func (s *segment) Append(record *api.Record) (offset uint64, err error) {
 	cur := s.nextOffset
 	record.Offset = cur
