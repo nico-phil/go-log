@@ -15,7 +15,7 @@ import (
 // @Todo: later, i should unexport some filed for better api design. i should not expose to users some
 // internal stuff
 
-// Log represents a Log, this is api that control the WAL
+// Log represents the abstraction to manage the list of segments
 type Log struct {
 	mu            sync.RWMutex
 	Dir           string
@@ -45,7 +45,7 @@ func (l *Log) setup() error {
 		return err
 	}
 	var baseOffsets []uint64
-	for _, file := range files {
+	for _, file := range files { // file: 16.index 16.store
 		offStr := strings.TrimSuffix(
 			file.Name(),
 			path.Ext(file.Name()),
@@ -125,4 +125,16 @@ func (l *Log) Read(off uint64) (*api.Record, error) {
 		return nil, fmt.Errorf("offset out of range: %d", off)
 	}
 	return s.Read(off)
+}
+
+// Close closes all the segments
+func (l *Log) Close() error {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	for _, segment := range l.Segments {
+		if err := segment.Close(); err != nil {
+			return err
+		}
+	}
+	return nil
 }
