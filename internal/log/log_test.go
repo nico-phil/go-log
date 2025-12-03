@@ -43,4 +43,8 @@ func testAppendRead(t *testing.T, l *Log) {
 	off, err := l.Append(rec)
 	require.NoError(t, err)
 	require.Equal(t, uint64(0), off)
+
+	read, err := l.Read(off)
+	require.NoError(t, err)
+	require.Equal(t, rec.Value, read.Value)
 }
