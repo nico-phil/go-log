@@ -138,3 +138,21 @@ func (l *Log) Close() error {
 	}
 	return nil
 }
+
+// Remove close the log and remove the data
+func (l *Log) Remove() error {
+	if err := l.Close(); err != nil {
+		return err
+	}
+
+	return os.RemoveAll(l.Dir)
+}
+
+// Reset removes the log and create a new log to replace it
+func (l *Log) Reset() error {
+	if err := l.Remove(); err != nil {
+		return err
+	}
+
+	return l.setup()
+}
