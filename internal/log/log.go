@@ -156,3 +156,45 @@ func (l *Log) Reset() error {
 
 	return l.setup()
 }
+
+// LowestOffset returns the lower offset in the log
+func (l *Log) LowestOffset() (uint64, error) {
+	l.mu.RLock()
+	defer l.mu.Unlock()
+	return l.Segments[0].baseOffset, nil
+}
+
+// HighestOffset returns the lower offset in the log
+func (l *Log) HighestOffset() (uint64, error) {
+	l.mu.RLock()
+	defer l.mu.Unlock()
+
+	off := l.Segments[len(l.Segments)-1].nextOffset
+	if off == 0 {
+		return 0, nil
+	}
+
+	return off - 1, nil
+}
+
+// Truncate removes all segments whose highest offset is lower than the lowest. We do not have infinite space buddy:)
+// we will periodically remove old segments whose data we have processed by then and don't need anymore
+func (l *Log) Truncate(lowest uint64) error {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
+	var segments []*segment
+
+	for _, seg := range l.Segments {
+		if seg.nextOffset <= lowest+1 {
+			if err := seg.Remove(); err != nil {
+				return err
+			}
+		}
+
+		segments = append(segments, seg)
+	}
+
+	l.Segments = segments
+	return nil
+}

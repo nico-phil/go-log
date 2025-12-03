@@ -10,23 +10,32 @@ import (
 
 // TestLog tests the Log
 func TestLog(t *testing.T) {
-	dir, err := os.MkdirTemp("", "log-test")
-	require.NoError(t, err)
-	require.NotEmpty(t, dir)
 
-	c := Config{}
-	// c.Segment.MaxStoreBytes = 32
+	senarios := map[string]func(t *testing.T, log *Log){
+		"append and read success": testAppendRead,
+	}
 
-	l, err := NewLog(dir, c)
-	require.NoError(t, err)
+	for sc, fn := range senarios {
+		t.Run(sc, func(t *testing.T) {
+			dir, err := os.MkdirTemp("", "store-test")
+			require.NoError(t, err)
+			defer os.RemoveAll(dir)
 
-	testAppendRead(t, l)
+			c := Config{}
+			c.Segment.MaxStoreBytes = 32
+
+			log, err := NewLog(dir, c)
+			require.NoError(t, err)
+
+			fn(t, log)
+		})
+	}
 
 }
 
 // testApendRead represents an helper function to test append and read
 func testAppendRead(t *testing.T, l *Log) {
-	t.Helper()
+	// t.Helper()
 	rec := &api.Record{
 		Value: []byte("hello world"),
 	}
