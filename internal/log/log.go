@@ -26,8 +26,8 @@ type Log struct {
 
 // NewLog create a new Log
 func NewLog(dir string, c Config) (*Log, error) {
-	if c.Segment.MaxIndexBytes == 0 {
-		c.Segment.MaxIndexBytes = 1024
+	if c.Segment.MaxStoreBytes == 0 {
+		c.Segment.MaxStoreBytes = 1024
 	}
 
 	if c.Segment.MaxIndexBytes == 0 {
@@ -121,6 +121,7 @@ func (l *Log) Read(off uint64) (*api.Record, error) {
 			break
 		}
 	}
+
 	if s == nil || s.nextOffset <= off {
 		return nil, fmt.Errorf("offset out of range: %d", off)
 	}
@@ -160,14 +161,14 @@ func (l *Log) Reset() error {
 // LowestOffset returns the lower offset in the log
 func (l *Log) LowestOffset() (uint64, error) {
 	l.mu.RLock()
-	defer l.mu.Unlock()
+	defer l.mu.RUnlock()
 	return l.Segments[0].baseOffset, nil
 }
 
 // HighestOffset returns the lower offset in the log
 func (l *Log) HighestOffset() (uint64, error) {
 	l.mu.RLock()
-	defer l.mu.Unlock()
+	defer l.mu.RUnlock()
 
 	off := l.Segments[len(l.Segments)-1].nextOffset
 	if off == 0 {
