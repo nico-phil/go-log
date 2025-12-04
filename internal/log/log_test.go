@@ -15,6 +15,7 @@ func TestLog(t *testing.T) {
 		"append and read success":    testAppendRead,
 		"offset out of range":        testOutOfRangeErr,
 		"init with existing segment": testInitExisting,
+		"truncate":                   testTruncate,
 	}
 
 	for sc, fn := range senarios {
@@ -87,4 +88,21 @@ func testInitExisting(t *testing.T, l *Log) {
 	require.NoError(t, err)
 	require.Equal(t, uint64(2), off)
 
+}
+
+func testTruncate(t *testing.T, l *Log) {
+	append := &api.Record{
+		Value: []byte("hello world"),
+	}
+
+	for i := 0; i < 3; i++ {
+		_, err := l.Append(append)
+		require.NoError(t, err)
+	}
+
+	err := l.Truncate(1)
+	require.NoError(t, err)
+
+	_, err = l.Read(0)
+	require.Error(t, err)
 }
