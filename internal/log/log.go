@@ -26,8 +26,8 @@ type Log struct {
 
 // NewLog create a new Log
 func NewLog(dir string, c Config) (*Log, error) {
-	if c.Segment.MaxIndexBytes == 0 {
-		c.Segment.MaxIndexBytes = 1024
+	if c.Segment.MaxStoreBytes == 0 {
+		c.Segment.MaxStoreBytes = 1024
 	}
 
 	if c.Segment.MaxIndexBytes == 0 {
@@ -121,6 +121,7 @@ func (l *Log) Read(off uint64) (*api.Record, error) {
 			break
 		}
 	}
+
 	if s == nil || s.nextOffset <= off {
 		return nil, fmt.Errorf("offset out of range: %d", off)
 	}

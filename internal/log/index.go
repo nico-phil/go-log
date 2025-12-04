@@ -1,6 +1,7 @@
 package log
 
 import (
+	"fmt"
 	"io"
 	"os"
 
@@ -49,6 +50,9 @@ func NewIndex(f *os.File, c Config) (*index, error) {
 		gommap.MAP_SHARED,
 	)
 
+	fmt.Println("file size", idx.size)
+	fmt.Println("mmap len", len(idx.MMap))
+
 	if err != nil {
 		return nil, err
 	}
@@ -67,6 +71,10 @@ func (i *index) Write(off uint32, pos uint64) error {
 	// encode the position and write it to the memory-mapped file
 	enc.PutUint64(i.MMap[i.size+offWidth:i.size+entryWidth], pos)
 	i.size += uint64(entryWidth)
+
+	if err := os.Truncate(i.file.Name(), int64(i.size)); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -91,6 +99,8 @@ func (i *index) Read(in int64) (out uint32, pos uint64, err error) {
 	out = enc.Uint32(i.MMap[pos : pos+offWidth])
 
 	pos = enc.Uint64(i.MMap[pos+offWidth : pos+entryWidth])
+
+	fmt.Println("mmap:", string(i.MMap))
 
 	return out, pos, nil
 
