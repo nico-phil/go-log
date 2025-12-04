@@ -161,14 +161,14 @@ func (l *Log) Reset() error {
 // LowestOffset returns the lower offset in the log
 func (l *Log) LowestOffset() (uint64, error) {
 	l.mu.RLock()
-	defer l.mu.Unlock()
+	defer l.mu.RUnlock()
 	return l.Segments[0].baseOffset, nil
 }
 
 // HighestOffset returns the lower offset in the log
 func (l *Log) HighestOffset() (uint64, error) {
 	l.mu.RLock()
-	defer l.mu.Unlock()
+	defer l.mu.RUnlock()
 
 	off := l.Segments[len(l.Segments)-1].nextOffset
 	if off == 0 {

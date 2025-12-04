@@ -12,7 +12,9 @@ import (
 func TestLog(t *testing.T) {
 
 	senarios := map[string]func(t *testing.T, log *Log){
-		"append and read success": testAppendRead,
+		"append and read success":    testAppendRead,
+		"offset out of range":        testOutOfRangeErr,
+		"init with existing segment": testInitExisting,
 	}
 
 	for sc, fn := range senarios {
@@ -22,7 +24,7 @@ func TestLog(t *testing.T) {
 			defer os.RemoveAll(dir)
 
 			c := Config{}
-			c.Segment.MaxStoreBytes = 32
+			c.Segment.MaxStoreBytes = 36
 
 			log, err := NewLog(dir, c)
 			require.NoError(t, err)
@@ -47,4 +49,42 @@ func testAppendRead(t *testing.T, l *Log) {
 	read, err := l.Read(off)
 	require.NoError(t, err)
 	require.Equal(t, rec.Value, read.Value)
+}
+
+func testOutOfRangeErr(t *testing.T, l *Log) {
+	read, err := l.Read(1)
+	require.Error(t, err)
+	require.Nil(t, read)
+}
+
+func testInitExisting(t *testing.T, l *Log) {
+	rec := &api.Record{
+		Value: []byte("hello world"),
+	}
+
+	for i := 0; i < 3; i++ {
+		_, err := l.Append(rec)
+		require.NoError(t, err)
+	}
+	require.NoError(t, l.Close())
+
+	off, err := l.LowestOffset()
+	require.NoError(t, err)
+	require.Equal(t, uint64(0), off)
+
+	off, err = l.HighestOffset()
+	require.NoError(t, err)
+	require.Equal(t, uint64(2), off)
+
+	newL, err := NewLog(l.Dir, l.Config)
+	require.NoError(t, err)
+
+	off, err = newL.LowestOffset()
+	require.NoError(t, err)
+	require.Equal(t, uint64(0), off)
+
+	off, err = l.HighestOffset()
+	require.NoError(t, err)
+	require.Equal(t, uint64(2), off)
+
 }
