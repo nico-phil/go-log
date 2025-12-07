@@ -73,27 +73,27 @@ func (x *Record) GetOffset() uint64 {
 	return 0
 }
 
-type ReadRequest struct {
+type ProduceRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Offset        int64                  `protobuf:"varint,1,opt,name=offset,proto3" json:"offset,omitempty"`
+	Record        *Record                `protobuf:"bytes,1,opt,name=record,proto3" json:"record,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ReadRequest) Reset() {
-	*x = ReadRequest{}
+func (x *ProduceRequest) Reset() {
+	*x = ProduceRequest{}
 	mi := &file_api_v1_log_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ReadRequest) String() string {
+func (x *ProduceRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ReadRequest) ProtoMessage() {}
+func (*ProduceRequest) ProtoMessage() {}
 
-func (x *ReadRequest) ProtoReflect() protoreflect.Message {
+func (x *ProduceRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_api_v1_log_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -105,127 +105,127 @@ func (x *ReadRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ReadRequest.ProtoReflect.Descriptor instead.
-func (*ReadRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ProduceRequest.ProtoReflect.Descriptor instead.
+func (*ProduceRequest) Descriptor() ([]byte, []int) {
 	return file_api_v1_log_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ReadRequest) GetOffset() int64 {
-	if x != nil {
-		return x.Offset
-	}
-	return 0
-}
-
-type ReadResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Record        *Record                `protobuf:"bytes,1,opt,name=record,proto3" json:"record,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ReadResponse) Reset() {
-	*x = ReadResponse{}
-	mi := &file_api_v1_log_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ReadResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ReadResponse) ProtoMessage() {}
-
-func (x *ReadResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_log_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ReadResponse.ProtoReflect.Descriptor instead.
-func (*ReadResponse) Descriptor() ([]byte, []int) {
-	return file_api_v1_log_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *ReadResponse) GetRecord() *Record {
+func (x *ProduceRequest) GetRecord() *Record {
 	if x != nil {
 		return x.Record
 	}
 	return nil
 }
 
-type ApprendRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Record        *Record                `protobuf:"bytes,1,opt,name=record,proto3" json:"record,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ApprendRequest) Reset() {
-	*x = ApprendRequest{}
-	mi := &file_api_v1_log_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ApprendRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ApprendRequest) ProtoMessage() {}
-
-func (x *ApprendRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_v1_log_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ApprendRequest.ProtoReflect.Descriptor instead.
-func (*ApprendRequest) Descriptor() ([]byte, []int) {
-	return file_api_v1_log_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *ApprendRequest) GetRecord() *Record {
-	if x != nil {
-		return x.Record
-	}
-	return nil
-}
-
-type AppendResponse struct {
+type ProduceResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Offset        int64                  `protobuf:"varint,1,opt,name=offset,proto3" json:"offset,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *AppendResponse) Reset() {
-	*x = AppendResponse{}
+func (x *ProduceResponse) Reset() {
+	*x = ProduceResponse{}
+	mi := &file_api_v1_log_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProduceResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProduceResponse) ProtoMessage() {}
+
+func (x *ProduceResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_log_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProduceResponse.ProtoReflect.Descriptor instead.
+func (*ProduceResponse) Descriptor() ([]byte, []int) {
+	return file_api_v1_log_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *ProduceResponse) GetOffset() int64 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+type ConsumeRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Offset        int64                  `protobuf:"varint,1,opt,name=offset,proto3" json:"offset,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConsumeRequest) Reset() {
+	*x = ConsumeRequest{}
+	mi := &file_api_v1_log_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConsumeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConsumeRequest) ProtoMessage() {}
+
+func (x *ConsumeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_log_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConsumeRequest.ProtoReflect.Descriptor instead.
+func (*ConsumeRequest) Descriptor() ([]byte, []int) {
+	return file_api_v1_log_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ConsumeRequest) GetOffset() int64 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+type ConsumeResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Record        *Record                `protobuf:"bytes,1,opt,name=record,proto3" json:"record,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConsumeResponse) Reset() {
+	*x = ConsumeResponse{}
 	mi := &file_api_v1_log_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AppendResponse) String() string {
+func (x *ConsumeResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AppendResponse) ProtoMessage() {}
+func (*ConsumeResponse) ProtoMessage() {}
 
-func (x *AppendResponse) ProtoReflect() protoreflect.Message {
+func (x *ConsumeResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_api_v1_log_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -237,16 +237,16 @@ func (x *AppendResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AppendResponse.ProtoReflect.Descriptor instead.
-func (*AppendResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ConsumeResponse.ProtoReflect.Descriptor instead.
+func (*ConsumeResponse) Descriptor() ([]byte, []int) {
 	return file_api_v1_log_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *AppendResponse) GetOffset() int64 {
+func (x *ConsumeResponse) GetRecord() *Record {
 	if x != nil {
-		return x.Offset
+		return x.Record
 	}
-	return 0
+	return nil
 }
 
 var File_api_v1_log_proto protoreflect.FileDescriptor
@@ -256,18 +256,20 @@ const file_api_v1_log_proto_rawDesc = "" +
 	"\x10api/v1/log.proto\x12\x06log.v1\"6\n" +
 	"\x06Record\x12\x14\n" +
 	"\x05value\x18\x01 \x01(\fR\x05value\x12\x16\n" +
-	"\x06offset\x18\x02 \x01(\x04R\x06offset\"%\n" +
-	"\vReadRequest\x12\x16\n" +
-	"\x06offset\x18\x01 \x01(\x03R\x06offset\"6\n" +
-	"\fReadResponse\x12&\n" +
-	"\x06record\x18\x01 \x01(\v2\x0e.log.v1.RecordR\x06record\"8\n" +
-	"\x0eApprendRequest\x12&\n" +
-	"\x06record\x18\x01 \x01(\v2\x0e.log.v1.RecordR\x06record\"(\n" +
-	"\x0eAppendResponse\x12\x16\n" +
-	"\x06offset\x18\x01 \x01(\x03R\x06offset2v\n" +
-	"\x03Log\x123\n" +
-	"\x04Read\x12\x13.log.v1.ReadRequest\x1a\x14.log.v1.ReadResponse\"\x00\x12:\n" +
-	"\x06Append\x12\x16.log.v1.ApprendRequest\x1a\x16.log.v1.AppendResponse\"\x00B!Z\x1fgithub.com/nico-phil/api/log_v1b\x06proto3"
+	"\x06offset\x18\x02 \x01(\x04R\x06offset\"8\n" +
+	"\x0eProduceRequest\x12&\n" +
+	"\x06record\x18\x01 \x01(\v2\x0e.log.v1.RecordR\x06record\")\n" +
+	"\x0fProduceResponse\x12\x16\n" +
+	"\x06offset\x18\x01 \x01(\x03R\x06offset\"(\n" +
+	"\x0eConsumeRequest\x12\x16\n" +
+	"\x06offset\x18\x01 \x01(\x03R\x06offset\"9\n" +
+	"\x0fConsumeResponse\x12&\n" +
+	"\x06record\x18\x01 \x01(\v2\x0e.log.v1.RecordR\x06record2\x8f\x02\n" +
+	"\x03Log\x12<\n" +
+	"\aProduce\x12\x16.log.v1.ProduceRequest\x1a\x17.log.v1.ProduceResponse\"\x00\x12<\n" +
+	"\aConsume\x12\x16.log.v1.ConsumeRequest\x1a\x17.log.v1.ConsumeResponse\"\x00\x12D\n" +
+	"\rConsumeStream\x12\x16.log.v1.ConsumeRequest\x1a\x17.log.v1.ConsumeResponse\"\x000\x01\x12F\n" +
+	"\rProduceStream\x12\x16.log.v1.ProduceRequest\x1a\x17.log.v1.ProduceResponse\"\x00(\x010\x01B!Z\x1fgithub.com/nico-phil/api/log_v1b\x06proto3"
 
 var (
 	file_api_v1_log_proto_rawDescOnce sync.Once
@@ -283,21 +285,25 @@ func file_api_v1_log_proto_rawDescGZIP() []byte {
 
 var file_api_v1_log_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_api_v1_log_proto_goTypes = []any{
-	(*Record)(nil),         // 0: log.v1.Record
-	(*ReadRequest)(nil),    // 1: log.v1.ReadRequest
-	(*ReadResponse)(nil),   // 2: log.v1.ReadResponse
-	(*ApprendRequest)(nil), // 3: log.v1.ApprendRequest
-	(*AppendResponse)(nil), // 4: log.v1.AppendResponse
+	(*Record)(nil),          // 0: log.v1.Record
+	(*ProduceRequest)(nil),  // 1: log.v1.ProduceRequest
+	(*ProduceResponse)(nil), // 2: log.v1.ProduceResponse
+	(*ConsumeRequest)(nil),  // 3: log.v1.ConsumeRequest
+	(*ConsumeResponse)(nil), // 4: log.v1.ConsumeResponse
 }
 var file_api_v1_log_proto_depIdxs = []int32{
-	0, // 0: log.v1.ReadResponse.record:type_name -> log.v1.Record
-	0, // 1: log.v1.ApprendRequest.record:type_name -> log.v1.Record
-	1, // 2: log.v1.Log.Read:input_type -> log.v1.ReadRequest
-	3, // 3: log.v1.Log.Append:input_type -> log.v1.ApprendRequest
-	2, // 4: log.v1.Log.Read:output_type -> log.v1.ReadResponse
-	4, // 5: log.v1.Log.Append:output_type -> log.v1.AppendResponse
-	4, // [4:6] is the sub-list for method output_type
-	2, // [2:4] is the sub-list for method input_type
+	0, // 0: log.v1.ProduceRequest.record:type_name -> log.v1.Record
+	0, // 1: log.v1.ConsumeResponse.record:type_name -> log.v1.Record
+	1, // 2: log.v1.Log.Produce:input_type -> log.v1.ProduceRequest
+	3, // 3: log.v1.Log.Consume:input_type -> log.v1.ConsumeRequest
+	3, // 4: log.v1.Log.ConsumeStream:input_type -> log.v1.ConsumeRequest
+	1, // 5: log.v1.Log.ProduceStream:input_type -> log.v1.ProduceRequest
+	2, // 6: log.v1.Log.Produce:output_type -> log.v1.ProduceResponse
+	4, // 7: log.v1.Log.Consume:output_type -> log.v1.ConsumeResponse
+	4, // 8: log.v1.Log.ConsumeStream:output_type -> log.v1.ConsumeResponse
+	2, // 9: log.v1.Log.ProduceStream:output_type -> log.v1.ProduceResponse
+	6, // [6:10] is the sub-list for method output_type
+	2, // [2:6] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name
 	2, // [2:2] is the sub-list for extension extendee
 	0, // [0:2] is the sub-list for field type_name
