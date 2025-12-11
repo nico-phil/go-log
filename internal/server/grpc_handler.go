@@ -16,3 +16,12 @@ func (s *grpcServer) Produce(ctx context.Context, req *api.ProduceRequest) (*api
 
 	return &api.ProduceResponse{Offset: int64(offset)}, nil
 }
+
+func (s *grpcServer) Consume(ctx context.Context, req *api.ConsumeRequest) (*api.ConsumeResponse, error) {
+	rec, err := s.CommitLog.Read(uint64(req.Offset))
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.ConsumeResponse{Record: rec}, nil
+}
