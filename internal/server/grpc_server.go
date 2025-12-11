@@ -2,10 +2,11 @@ package server
 
 import (
 	api "github.com/nico-phil/go-log/api/v1"
+	CommitLog "github.com/nico-phil/go-log/internal/log"
 )
 
 type Config struct {
-	CommitLog CommitLog
+	CommitLog CommitLog.Log
 }
 
 type grpcServer struct {
