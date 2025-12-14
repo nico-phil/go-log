@@ -26,19 +26,17 @@ func (s *grpcServer) Consume(ctx context.Context, req *api.ConsumeRequest) (*api
 	return &api.ConsumeResponse{Record: rec}, nil
 }
 
-func (s *grpcServer) ProduceStream(stream api.Log_ProduceStreamClient) error {
+func (s *grpcServer) ProduceStream(stream api.Log_ProduceStreamServer) error {
 	for {
 		req, err := stream.Recv()
 		if err != nil {
-			return nil
+			return err
 		}
-
 		res, err := s.Produce(stream.Context(), req)
 		if err != nil {
-			return nil
+			return err
 		}
-
-		if err := stream.Send(res); err != nil {
+		if err = stream.Send(res); err != nil {
 			return err
 		}
 	}
