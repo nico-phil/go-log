@@ -4,6 +4,7 @@ import (
 	api "github.com/nico-phil/go-log/api/v1"
 	CommitLog "github.com/nico-phil/go-log/internal/log"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 // Config contents the commit log package
@@ -33,5 +34,6 @@ func NewGRPCServer(config *Config) (*grpc.Server, error) {
 		return nil, err
 	}
 	api.RegisterLogServer(gsrv, srv)
+	reflection.Register(gsrv)
 	return gsrv, nil
 }
