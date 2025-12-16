@@ -4,10 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net"
 	"os"
 
-	api "github.com/nico-phil/go-log/api/v1"
 	llog "github.com/nico-phil/go-log/internal/log"
+	"github.com/nico-phil/go-log/internal/server"
 )
 
 func main() {
@@ -24,23 +25,25 @@ func main() {
 		log.Fatal("error-Newlog:", err)
 	}
 
-	rec1 := api.Record{
-		Value: []byte("hello world"),
+	config := server.Config{
+		CommitLog: wLog,
 	}
 
-	off, err := wLog.Append(&rec1)
+	srv, err := server.NewGRPCServer(&config)
 	if err != nil {
-		log.Fatal("append:", err)
+		return
 	}
 
-	fmt.Println("off:", off)
-	readRec, err := wLog.Read(off)
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", 4000))
 	if err != nil {
-		log.Fatal("read Record", err)
+		log.Fatal(err)
 	}
 
-	fmt.Println("readRec:", readRec)
+	fmt.Printf("lis: %+v", lis)
+	err = srv.Serve(lis)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	wLog.Close()
-
+	fmt.Println("Hello")
 }
