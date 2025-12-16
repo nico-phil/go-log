@@ -8,7 +8,7 @@ import (
 
 // Config contents the commit log package
 type Config struct {
-	CommitLog CommitLog.Log
+	CommitLog *CommitLog.Log
 }
 
 // grpcServer represent our grpc server
