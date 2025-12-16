@@ -4,6 +4,11 @@ curl-produce:
 curl-consume: 
 	curl -i -X GET -d '{"offset": 0}' http://localhost:8080/
 
+curl-consume-grpc:
+	grpcurl -d '{"offset":1}' -plaintext localhost:4000 log.v1.Log/Consume
+
+
+
 
 
 compile:
@@ -23,3 +28,4 @@ tidy:
 
 debug:
 	dlv debug cmd/main.go
+

@@ -39,7 +39,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("lis: %+v", lis)
 	err = srv.Serve(lis)
 	if err != nil {
 		log.Fatal(err)
