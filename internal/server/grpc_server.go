@@ -24,7 +24,7 @@ type grpcServer struct {
 	api.UnimplementedLogServer
 }
 
-// newgrpcServer create a new grpc server
+// newgrpcServer create a new grpcServer
 func newgrpcServer(config *Config) (*grpcServer, error) {
 	svr := grpcServer{
 		Config: config,
@@ -33,6 +33,7 @@ func newgrpcServer(config *Config) (*grpcServer, error) {
 	return &svr, nil
 }
 
+// NewGRPCServer creates a Newserver and and register it
 func NewGRPCServer(config *Config) (*grpc.Server, error) {
 	gsrv := grpc.NewServer()
 	srv, err := newgrpcServer(config)
