@@ -2,14 +2,20 @@ package server
 
 import (
 	api "github.com/nico-phil/go-log/api/v1"
-	CommitLog "github.com/nico-phil/go-log/internal/log"
+	llog "github.com/nico-phil/go-log/internal/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
 // Config contents the commit log package
 type Config struct {
-	CommitLog *CommitLog.Log
+	CommitLog *llog.Log
+}
+
+// CommitLog represents the interface of the log
+type CommitLog interface {
+	Append(*api.Record) (uint64, error)
+	Read(uint64) (*api.Record, error)
 }
 
 // grpcServer represent our grpc server
