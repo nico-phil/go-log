@@ -29,14 +29,14 @@ func main() {
 		CommitLog: wLog,
 	}
 
-	srv, err := server.NewGRPCServer(&config)
-	if err != nil {
-		return
-	}
-
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", 4000))
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	srv, err := server.NewGRPCServer(&config)
+	if err != nil {
+		return
 	}
 
 	err = srv.Serve(lis)
