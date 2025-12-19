@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"net"
 	"os"
 	"testing"
@@ -31,7 +30,7 @@ func Test_Server(t *testing.T) {
 	grpcServer, err := NewGRPCServer(&c)
 	require.NoError(t, err)
 
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", 0))
+	lis, err := net.Listen("tcp", ":0")
 	require.NoError(t, err)
 
 	go func() {
@@ -41,10 +40,19 @@ func Test_Server(t *testing.T) {
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}
-	cc, err := grpc.NewClient(lis.Addr().Network(), opts...)
+	cc, err := grpc.NewClient(lis.Addr().String(), opts...)
 	client := api.NewLogClient(cc)
 	require.NoError(t, err)
 
-	client.Consume(context.Background(), &api.ConsumeRequest{})
+	record := api.Record{
+		Value: []byte("hello world"),
+	}
+
+	produceResp, err := client.Produce(context.Background(), &api.ProduceRequest{Record: &record})
+	require.NoError(t, err)
+
+	consumeResp, err := client.Consume(context.Background(), &api.ConsumeRequest{Offset: produceResp.Offset})
+	require.NoError(t, err)
+	require.Equal(t, record.Value, consumeResp.Record.Value)
 
 }
