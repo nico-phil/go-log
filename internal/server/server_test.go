@@ -45,7 +45,8 @@ func Test_Server(t *testing.T) {
 	require.NoError(t, err)
 
 	record := api.Record{
-		Value: []byte("hello world"),
+		Value:  []byte("hello world"),
+		Offset: 0,
 	}
 
 	produceResp, err := client.Produce(context.Background(), &api.ProduceRequest{Record: &record})
@@ -54,5 +55,41 @@ func Test_Server(t *testing.T) {
 	consumeResp, err := client.Consume(context.Background(), &api.ConsumeRequest{Offset: produceResp.Offset})
 	require.NoError(t, err)
 	require.Equal(t, record.Value, consumeResp.Record.Value)
+	require.Equal(t, produceResp.Offset, int64(consumeResp.Record.Offset))
+
+	// ProduceStream
+	stream, err := client.ProduceStream(context.Background())
+	require.NoError(t, err)
+	records := []*api.Record{
+		{Value: []byte("first message"), Offset: 0},
+		{Value: []byte("second message"), Offset: 1},
+	}
+
+	for offset, rec := range records {
+		err = stream.Send(&api.ProduceRequest{Record: rec})
+		require.NoError(t, err)
+
+		resp, err := stream.Recv()
+		require.NoError(t, err)
+
+		require.Equal(t, int64(offset+1), resp.Offset)
+	}
+
+	// cosume stream
+	streamC, err := client.ConsumeStream(context.Background(), &api.ConsumeRequest{Offset: 0})
+	require.NoError(t, err)
+
+	for i := 0; i < 2; i++ {
+		resp, err := streamC.Recv()
+		require.NoError(t, err)
+		if i == 0 {
+			rec := &record
+			require.Equal(t, rec.Offset, resp.Record.Offset)
+		} else {
+			rec := records[i-1]
+			require.Equal(t, rec.Offset, resp.Record.Offset)
+		}
+
+	}
 
 }
