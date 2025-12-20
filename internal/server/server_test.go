@@ -29,6 +29,7 @@ func Test_Server(t *testing.T) {
 	}
 	grpcServer, err := NewGRPCServer(&c)
 	require.NoError(t, err)
+	defer grpcServer.Stop()
 
 	lis, err := net.Listen("tcp", ":0")
 	require.NoError(t, err)
@@ -44,11 +45,19 @@ func Test_Server(t *testing.T) {
 	client := api.NewLogClient(cc)
 	require.NoError(t, err)
 
+	testProduceConsume(t, client)
+
+	testProduceConsumeStream(t, client)
+
+}
+
+// testProduceConsume tests produce and consume handler
+func testProduceConsume(t *testing.T, client api.LogClient) {
+	t.Helper()
 	record := api.Record{
 		Value:  []byte("hello world"),
 		Offset: 0,
 	}
-
 	produceResp, err := client.Produce(context.Background(), &api.ProduceRequest{Record: &record})
 	require.NoError(t, err)
 
@@ -57,13 +66,21 @@ func Test_Server(t *testing.T) {
 	require.Equal(t, record.Value, consumeResp.Record.Value)
 	require.Equal(t, produceResp.Offset, int64(consumeResp.Record.Offset))
 
-	// ProduceStream
-	stream, err := client.ProduceStream(context.Background())
-	require.NoError(t, err)
+}
+
+// testProduceConsumeStream tests produce and consume stream
+func testProduceConsumeStream(t *testing.T, client api.LogClient) {
+	t.Helper()
+	record := api.Record{
+		Value:  []byte("hello world"),
+		Offset: 0,
+	}
 	records := []*api.Record{
 		{Value: []byte("first message"), Offset: 0},
 		{Value: []byte("second message"), Offset: 1},
 	}
+	stream, err := client.ProduceStream(context.Background())
+	require.NoError(t, err)
 
 	for offset, rec := range records {
 		err = stream.Send(&api.ProduceRequest{Record: rec})
@@ -91,5 +108,4 @@ func Test_Server(t *testing.T) {
 		}
 
 	}
-
 }
