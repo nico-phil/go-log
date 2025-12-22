@@ -3,9 +3,12 @@
 #to be executed. This ensures the associated commands run every time the target is 
 #requested, regardless of whether a file with that name exists in the directory. 
 
+CONFIG_PATH = ${HOME}/.proglog/
+
 .PHONY: run	
 run:
 	go run cmd/main.go
+
 .PHONY: test	
 test:	
 	go test -race ./...

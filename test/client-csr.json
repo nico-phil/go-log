@@ -1,11 +1,12 @@
 {
-    "CN": "Phitech CA",
+    "CN": "client",
+    "hosts": [""],
     "key": {
         "algo": "rsa",
         "size": 2048
     },
     "names": [
-        {
+       {
             "C": "EE",
             "L": "Tallin",
             "ST": "Tallin",
