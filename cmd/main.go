@@ -49,6 +49,6 @@ func main() {
 	// }
 
 	// fmt.Println("Hello")
-	f := config.ConfigFile("myfile")
-	fmt.Println(f)
+
+	fmt.Println(config.CAFile)
 }
