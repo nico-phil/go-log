@@ -11,7 +11,7 @@ run:
 
 .PHONY: test	
 test:	
-	go test -race ./...
+	go test -race -v ./...
 
 .PHONY: tidy
 tidy:
