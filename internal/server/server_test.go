@@ -53,6 +53,7 @@ func SetupTest(t *testing.T) (api.LogClient, func()) {
 		KeyFile:       config.ServerKeyFile,
 		CAFile:        config.CAFile,
 		ServerAddress: lis.Addr().String(),
+		Server:        true,
 	})
 	require.NoError(t, err)
 
@@ -71,7 +72,9 @@ func SetupTest(t *testing.T) (api.LogClient, func()) {
 
 	// client
 	clientTLSConfig, err := config.SetupTLSConfig(config.TLSConfig{
-		CAFile: config.CAFile,
+		CertFile: config.ClientCertFile,
+		KeyFile:  config.ClientKeyFile,
+		CAFile:   config.CAFile,
 	})
 	require.NoError(t, err)
 
