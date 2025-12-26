@@ -5,8 +5,14 @@ import (
 	"path/filepath"
 )
 
+var (
+	CAFile        = configFile("ca.pem")
+	ServerCetFile = configFile("server.pem")
+	ServerKeyFile = configFile("server-key.pem")
+)
+
 // configFile returns path file
-func ConfigFile(filename string) string {
+func configFile(filename string) string {
 	if dir := os.Getenv("CONFIG_DIR"); dir != "" {
 		return filepath.Join(dir, filename)
 	}
