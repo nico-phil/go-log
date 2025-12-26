@@ -1,6 +1,11 @@
 package config
 
-import "crypto/tls"
+import (
+	"crypto/tls"
+	"crypto/x509"
+	"fmt"
+	"os"
+)
 
 // TLSConfig represents tls configuration
 type TLSConfig struct {
@@ -11,6 +16,7 @@ type TLSConfig struct {
 	Server        bool
 }
 
+// SetupTLSConfig builds tls configuration and returns it
 func SetupTLSConfig(cfg TLSConfig) (*tls.Config, error) {
 	var err error
 	tlsConfig := &tls.Config{}
@@ -25,5 +31,26 @@ func SetupTLSConfig(cfg TLSConfig) (*tls.Config, error) {
 		}
 	}
 
-	return nil, nil
+	if cfg.CAFile != "" {
+		b, err := os.ReadFile(cfg.CAFile)
+		if err != nil {
+			return nil, err
+		}
+
+		ca := x509.NewCertPool()
+		ok := ca.AppendCertsFromPEM(b)
+		if !ok {
+			return nil, fmt.Errorf("failed to parse root certificated: %q", cfg.CAFile)
+		}
+
+		if cfg.Server {
+			tlsConfig.ClientCAs = ca
+			tlsConfig.ClientAuth = tls.RequireAndVerifyClientCert
+		} else {
+			tlsConfig.RootCAs = ca
+		}
+		tlsConfig.ServerName = cfg.ServerAddress
+	}
+
+	return tlsConfig, nil
 }
