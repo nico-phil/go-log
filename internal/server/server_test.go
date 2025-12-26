@@ -7,10 +7,11 @@ import (
 	"testing"
 
 	api "github.com/nico-phil/go-log/api/v1"
+	"github.com/nico-phil/go-log/internal/config"
 	llog "github.com/nico-phil/go-log/internal/log"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/credentials"
 )
 
 // Test_Server tests our grpc server
@@ -34,7 +35,8 @@ func Test_Server(t *testing.T) {
 // SetupTest run before and after each test function
 func SetupTest(t *testing.T) (api.LogClient, func()) {
 	t.Helper()
-	dir, err := os.MkdirTemp("", "data_test")
+
+	dir, err := os.MkdirTemp("", "server-test")
 	require.NoError(t, err)
 
 	logConfig := llog.Config{}
@@ -43,21 +45,40 @@ func SetupTest(t *testing.T) (api.LogClient, func()) {
 	commitLog, err := llog.NewLog(dir, logConfig)
 	require.NoError(t, err)
 
+	lis, err := net.Listen("tcp", "127.0.0.1:0")
+	require.NoError(t, err)
+
+	serverTlsConfig, err := config.SetupTLSConfig(config.TLSConfig{
+		CertFile:      config.ServerCetFile,
+		KeyFile:       config.ServerKeyFile,
+		CAFile:        config.CAFile,
+		ServerAddress: lis.Addr().String(),
+	})
+	require.NoError(t, err)
+
+	serverCreds := credentials.NewTLS(serverTlsConfig)
+
 	c := Config{
 		CommitLog: commitLog,
 	}
-	grpcServer, err := NewGRPCServer(&c)
-	require.NoError(t, err)
-
-	lis, err := net.Listen("tcp", ":0")
+	grpcServer, err := NewGRPCServer(&c, grpc.Creds(serverCreds))
 	require.NoError(t, err)
 
 	go func() {
 		grpcServer.Serve(lis)
+
 	}()
 
+	// client
+	clientTLSConfig, err := config.SetupTLSConfig(config.TLSConfig{
+		CAFile: config.CAFile,
+	})
+	require.NoError(t, err)
+
+	clientCreds := credentials.NewTLS(clientTLSConfig)
+
 	opts := []grpc.DialOption{
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithTransportCredentials(clientCreds),
 	}
 	cc, err := grpc.NewClient(lis.Addr().String(), opts...)
 	require.NoError(t, err)
