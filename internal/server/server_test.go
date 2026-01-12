@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	api "github.com/nico-phil/go-log/api/v1"
+	"github.com/nico-phil/go-log/internal/auth"
 	"github.com/nico-phil/go-log/internal/config"
 	llog "github.com/nico-phil/go-log/internal/log"
 	"github.com/stretchr/testify/require"
@@ -17,23 +18,23 @@ import (
 // Test_Server tests our grpc server
 func Test_Server(t *testing.T) {
 
-	scenarios := map[string]func(t *testing.T, client api.LogClient){
+	scenarios := map[string]func(t *testing.T, client, _ api.LogClient, config *Config){
 		"testProduceConsume":       testProduceConsume,
 		"testProduceConsumeStream": testProduceConsumeStream,
 	}
 
 	for sc, fn := range scenarios {
 		t.Run(sc, func(t *testing.T) {
-			client, teardown := SetupTest(t)
+			rootclient, nobodyClient, config, teardown := SetupTest(t)
 			defer teardown()
-			fn(t, client)
+			fn(t, rootclient, nobodyClient, config)
 		})
 	}
 
 }
 
 // SetupTest run before and after each test function
-func SetupTest(t *testing.T) (api.LogClient, func()) {
+func SetupTest(t *testing.T) (rootClient api.LogClient, nobodyClient api.LogClient, c *Config, teardown func()) {
 	t.Helper()
 
 	dir, err := os.MkdirTemp("", "server-test")
@@ -48,6 +49,35 @@ func SetupTest(t *testing.T) (api.LogClient, func()) {
 	lis, err := net.Listen("tcp", "127.0.0.1:0")
 	require.NoError(t, err)
 
+	newClient := func(crtPath, keyFile string) (*grpc.ClientConn, api.LogClient, []grpc.DialOption) {
+		tlsConfig, err := config.SetupTLSConfig(config.TLSConfig{
+			CertFile: crtPath,
+			KeyFile:  keyFile,
+			CAFile:   config.CAFile,
+		})
+		require.NoError(t, err)
+
+		tlsCreds := credentials.NewTLS(tlsConfig)
+
+		opts := []grpc.DialOption{grpc.WithTransportCredentials(tlsCreds)}
+		conn, err := grpc.NewClient(lis.Addr().String(), opts...)
+
+		client := api.NewLogClient(conn)
+		return conn, client, opts
+	}
+
+	var rootConn *grpc.ClientConn
+	rootConn, rootClient, _ = newClient(
+		config.RootClientCertFile,
+		config.RootClientKeyFile,
+	)
+
+	var nobodyConn *grpc.ClientConn
+	nobodyConn, nobodyClient, _ = newClient(
+		config.RootClientCertFile,
+		config.RootClientKeyFile,
+	)
+
 	serverTlsConfig, err := config.SetupTLSConfig(config.TLSConfig{
 		CertFile:      config.ServerCetFile,
 		KeyFile:       config.ServerKeyFile,
@@ -59,11 +89,12 @@ func SetupTest(t *testing.T) (api.LogClient, func()) {
 	require.NoError(t, err)
 
 	serverCreds := credentials.NewTLS(serverTlsConfig)
-
-	c := Config{
-		CommitLog: commitLog,
+	authorizer := auth.New("", "")
+	c = &Config{
+		CommitLog:  commitLog,
+		Authorizer: authorizer,
 	}
-	grpcServer, err := NewGRPCServer(&c, grpc.Creds(serverCreds))
+	grpcServer, err := NewGRPCServer(c, grpc.Creds(serverCreds))
 	require.NoError(t, err)
 
 	go func() {
@@ -71,34 +102,34 @@ func SetupTest(t *testing.T) (api.LogClient, func()) {
 
 	}()
 
-	// client
-	clientTLSConfig, err := config.SetupTLSConfig(config.TLSConfig{
-		CertFile: config.ClientCertFile,
-		KeyFile:  config.ClientKeyFile,
-		CAFile:   config.CAFile,
-	})
-	require.NoError(t, err)
+	// // client
+	// clientTLSConfig, err := config.SetupTLSConfig(config.TLSConfig{
+	// 	CertFile: config.ClientCertFile,
+	// 	KeyFile:  config.ClientKeyFile,
+	// 	CAFile:   config.CAFile,
+	// })
+	// require.NoError(t, err)
 
-	clientCreds := credentials.NewTLS(clientTLSConfig)
+	// clientCreds := credentials.NewTLS(clientTLSConfig)
 
-	opts := []grpc.DialOption{
-		grpc.WithTransportCredentials(clientCreds),
-	}
-	cc, err := grpc.NewClient(lis.Addr().String(), opts...)
-	require.NoError(t, err)
+	// opts := []grpc.DialOption{
+	// 	grpc.WithTransportCredentials(clientCreds),
+	// }
+	// cc, err := grpc.NewClient(lis.Addr().String(), opts...)
+	// require.NoError(t, err)
 
-	client := api.NewLogClient(cc)
+	// client := api.NewLogClient(cc)
 
-	return client, func() {
+	return rootClient, nobodyClient, c, func() {
 		grpcServer.Stop()
-		cc.Close()
-		lis.Close()
+		rootConn.Close()
+		nobodyConn.Close()
 		commitLog.Remove()
 	}
 }
 
 // testProduceConsume tests produce and consume handler
-func testProduceConsume(t *testing.T, client api.LogClient) {
+func testProduceConsume(t *testing.T, client, _ api.LogClient, config *Config) {
 	t.Helper()
 	record := api.Record{
 		Value:  []byte("hello world"),
@@ -115,7 +146,7 @@ func testProduceConsume(t *testing.T, client api.LogClient) {
 }
 
 // testProduceConsumeStream tests produce and consume stream
-func testProduceConsumeStream(t *testing.T, client api.LogClient) {
+func testProduceConsumeStream(t *testing.T, client, _ api.LogClient, config *Config) {
 
 	records := []*api.Record{
 		{Value: []byte("first message"), Offset: 0},
