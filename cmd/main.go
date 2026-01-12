@@ -16,6 +16,7 @@ import (
 // "github.com/nico-phil/go-log/internal/server"
 
 func main() {
+
 	// err := os.Mkdir("data", os.ModeDir)
 	// if err != nil && !errors.Is(err, os.ErrExist) {
 	// 	log.Fatal("error creating dir:", err)

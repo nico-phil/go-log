@@ -13,7 +13,7 @@ var (
 	ClientKeyFile  = configFile("client-key.pem")
 )
 
-// configFile returns path file
+// configFile returns path of certs file
 func configFile(filename string) string {
 	if dir := os.Getenv("CONFIG_DIR"); dir != "" {
 		return filepath.Join(dir, filename)
