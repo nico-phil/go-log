@@ -55,6 +55,7 @@ func SetupTest(t *testing.T) (api.LogClient, func()) {
 		ServerAddress: lis.Addr().String(),
 		Server:        true,
 	})
+
 	require.NoError(t, err)
 
 	serverCreds := credentials.NewTLS(serverTlsConfig)
