@@ -51,9 +51,10 @@ func SetupTest(t *testing.T) (rootClient api.LogClient, nobodyClient api.LogClie
 
 	newClient := func(crtFile, keyFile string) (*grpc.ClientConn, api.LogClient, []grpc.DialOption) {
 		tlsConfig, err := config.SetupTLSConfig(config.TLSConfig{
-			CertFile: crtFile,
-			KeyFile:  keyFile,
-			CAFile:   config.CAFile,
+			CertFile:      crtFile,
+			KeyFile:       keyFile,
+			CAFile:        config.CAFile,
+			ServerAddress: lis.Addr().String(),
 		})
 		require.NoError(t, err)
 
