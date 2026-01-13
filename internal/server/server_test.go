@@ -92,7 +92,7 @@ func SetupTest(t *testing.T) (rootClient api.LogClient, nobodyClient api.LogClie
 	require.NoError(t, err)
 
 	serverCreds := credentials.NewTLS(serverTlsConfig)
-	authorizer := auth.New("", "")
+	authorizer := auth.New(config.ACLModelFile, config.ACLPolicyFile)
 	c = &Config{
 		CommitLog:  commitLog,
 		Authorizer: authorizer,
