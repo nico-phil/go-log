@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	api "github.com/nico-phil/go-log/api/v1"
+	log_v1 "github.com/nico-phil/go-log/api/v1"
 	"github.com/nico-phil/go-log/internal/auth"
 	"github.com/nico-phil/go-log/internal/config"
 	llog "github.com/nico-phil/go-log/internal/log"
@@ -21,6 +22,7 @@ func Test_Server(t *testing.T) {
 	scenarios := map[string]func(t *testing.T, client, _ api.LogClient, config *Config){
 		"testProduceConsume":       testProduceConsume,
 		"testProduceConsumeStream": testProduceConsumeStream,
+		"testUnauthorizer":         testUnautorized,
 	}
 
 	for sc, fn := range scenarios {
@@ -158,4 +160,16 @@ func testProduceConsumeStream(t *testing.T, client, _ api.LogClient, config *Con
 		// require.Equal(t, uint64(resp.Record.Offset), uint64(i))
 	}
 
+}
+
+func testUnautorized(t *testing.T, _, client api.LogClient, config *Config) {
+	_, err := client.Produce(context.Background(), &log_v1.ProduceRequest{
+		Record: &api.Record{
+			Value: []byte("hello world"),
+		},
+	})
+
+	if err != nil {
+		t.Fatal("produce response should be nil ")
+	}
 }
