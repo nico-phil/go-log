@@ -72,6 +72,11 @@ gencert:
 
 	mv *.pem *.csr ${CONFIG_PATH}
 
+.PHONY: casbine-model-policy
+ casbine-model-policy:
+	cp test/model.conf $(CONFIG_PATH)/model.conf
+	cp test/policy.csv $(CONFIG_PATH)/policy.csv
+
 .PHONY: curl-produce
 curl-produce: 
 	curl -i -X POST -d '{"record": {"value": "5555"}}' http://localhost:8080/
