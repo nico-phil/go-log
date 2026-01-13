@@ -11,6 +11,9 @@ import (
 func (s *grpcServer) Produce(ctx context.Context, req *api.ProduceRequest) (*api.ProduceResponse, error) {
 	// validate input
 	// pass it down
+	if err := s.Authorizer.Authorize(subjectGetContext(ctx), objectwildCard, produceAction); err != nil {
+		return nil, err
+	}
 	offset, err := s.CommitLog.Append(req.Record)
 	if err != nil {
 		return nil, err

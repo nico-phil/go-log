@@ -1,11 +1,19 @@
 package server
 
 import (
+	"context"
+
 	api "github.com/nico-phil/go-log/api/v1"
 	"github.com/nico-phil/go-log/internal/auth"
 	llog "github.com/nico-phil/go-log/internal/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+)
+
+const (
+	objectwildCard = "*"
+	produceAction  = "produce"
+	consume        = "consume"
 )
 
 // Config contents the commit log package
@@ -45,4 +53,10 @@ func NewGRPCServer(config *Config, opts ...grpc.ServerOption) (*grpc.Server, err
 	api.RegisterLogServer(gsrv, srv)
 	reflection.Register(gsrv)
 	return gsrv, nil
+}
+
+type subjectContextKey struct{}
+
+func subjectGetContext(ctx context.Context) string {
+	return ctx.Value(subjectContextKey{}).(string)
 }
