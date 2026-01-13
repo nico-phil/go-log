@@ -4,7 +4,6 @@ import (
 	"context"
 
 	api "github.com/nico-phil/go-log/api/v1"
-	"github.com/nico-phil/go-log/internal/auth"
 	llog "github.com/nico-phil/go-log/internal/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -19,13 +18,17 @@ const (
 // Config contents the commit log package
 type Config struct {
 	CommitLog  *llog.Log
-	Authorizer *auth.Authorizer
+	Authorizer Authorizer
 }
 
 // CommitLog represents the interface of the log
 type CommitLog interface {
 	Append(*api.Record) (uint64, error)
 	Read(uint64) (*api.Record, error)
+}
+
+type Authorizer interface {
+	Authorize(subject, object, action string) error
 }
 
 // grpcServer represent our grpc server
