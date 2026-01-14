@@ -13,7 +13,9 @@ import (
 	llog "github.com/nico-phil/go-log/internal/log"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/status"
 )
 
 // Test_Server tests our grpc server
@@ -162,6 +164,7 @@ func testProduceConsumeStream(t *testing.T, client, _ api.LogClient, config *Con
 
 }
 
+// testUnautorized tests unautorize client
 func testUnautorized(t *testing.T, _, client api.LogClient, config *Config) {
 	_, err := client.Produce(context.Background(), &log_v1.ProduceRequest{
 		Record: &api.Record{
@@ -169,7 +172,8 @@ func testUnautorized(t *testing.T, _, client api.LogClient, config *Config) {
 		},
 	})
 
-	if err != nil {
-		t.Fatal("produce response should be nil ")
+	getCode, wantCode := status.Code(err), codes.PermissionDenied
+	if getCode != wantCode {
+		t.Fatalf("got code: %d, want: %d", getCode, wantCode)
 	}
 }
