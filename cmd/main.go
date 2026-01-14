@@ -6,15 +6,6 @@ import (
 	"github.com/nico-phil/go-log/internal/config"
 )
 
-// "errors"
-// "fmt"
-// "log"
-// "net"
-// "os"
-
-// llog "github.com/nico-phil/go-log/internal/log"
-// "github.com/nico-phil/go-log/internal/server"
-
 func main() {
 
 	// err := os.Mkdir("data", os.ModeDir)

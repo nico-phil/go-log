@@ -81,6 +81,7 @@ func subjectGetContext(ctx context.Context) string {
 	return ctx.Value(subjectContextKey{}).(string)
 }
 
+// authenticate adds the client subject in the context
 func authenticate(ctx context.Context) (context.Context, error) {
 	peerCtx, ok := peer.FromContext(ctx)
 	if !ok {

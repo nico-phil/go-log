@@ -2,13 +2,16 @@ package server
 
 import (
 	"context"
+	"log"
 
 	api "github.com/nico-phil/go-log/api/v1"
 )
 
 // Produce represents the grcp handler to append into the log
 func (s *grpcServer) Produce(ctx context.Context, req *api.ProduceRequest) (*api.ProduceResponse, error) {
-	if err := s.Authorizer.Authorize(subjectGetContext(ctx), objectwildCard, produceAction); err != nil {
+	sub := subjectGetContext(ctx)
+	log.Println("Subject:", sub)
+	if err := s.Authorizer.Authorize(sub, objectwildCard, produceAction); err != nil {
 		return nil, err
 	}
 	offset, err := s.CommitLog.Append(req.Record)
