@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"flag"
 	"net"
 	"os"
 	"testing"
@@ -12,11 +13,28 @@ import (
 	"github.com/nico-phil/go-log/internal/config"
 	llog "github.com/nico-phil/go-log/internal/log"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/status"
 )
+
+var debug = flag.Bool("debug", false, "Enable observability for eebugging")
+
+// TestMain setup logger for when debug true
+func TestMain(m *testing.M) {
+	flag.Parse()
+	if *debug {
+		logger, err := zap.NewDevelopment()
+		if err != nil {
+			panic(err)
+		}
+		zap.ReplaceGlobals(logger)
+	}
+
+	os.Exit(m.Run())
+}
 
 // Test_Server tests our grpc server
 func Test_Server(t *testing.T) {
