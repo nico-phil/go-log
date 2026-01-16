@@ -9,6 +9,10 @@ CONFIG_PATH = ${HOME}/.proglog/
 run:
 	go run cmd/main.go
 
+.PHONY: build
+build:
+	go build -o main cmd/main.go 
+
 .PHONY: test	
 test:	
 	go test -race -v ./...
