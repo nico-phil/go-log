@@ -15,7 +15,7 @@ build:
 
 .PHONY: test	
 test:	
-	go test -v -debug=true ./... 
+	go test -v ./...  -debug=true 
 
 .PHONY: tidy
 tidy:
