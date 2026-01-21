@@ -1,0 +1,28 @@
+services: 
+  node1:
+    build: .
+    environment:
+      NODE_NAME: "node1"
+      BIND_ADDR: "0.0.0.0"
+      SERF_PORT: "7946"   
+
+
+  node2:
+    build: .
+    environment:
+      NODE_NAME: "node2"
+      BIND_ADDR: "0.0.0.0"
+      SERF_PORT: "7946"   
+      JOIN_ADDR: "node1:7946"
+    depends_on:
+      - node1
+
+  node3:
+    build: .
+    environment:
+      NODE_NAME: "node3"
+      BIND_ADDR: "0.0.0.0"
+      SERF_PORT: "7946"   
+      JOIN_ADDR: "node1:7946"
+    depends_on:
+      - node1
