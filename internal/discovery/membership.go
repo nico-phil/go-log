@@ -71,4 +71,27 @@ func (m *Membership) setupSerf() (err error) {
 	return nil
 }
 
-func (m *Membership) evenHandler() {}
+func (m *Membership) evenHandler() {
+	for e := range m.events {
+		switch e.EventType() {
+		case serf.EventMemberJoin:
+			for _, member := range e.(serf.MemberEvent).Members {
+				if m.isLocal(member) {
+					continue
+				}
+
+				m.handleJoin(member)
+			}
+
+		case serf.EventMemberLeave, serf.EventMemberFailed:
+		}
+	}
+}
+
+func (m *Membership) handleJoin(member serf.Member) {}
+
+func (m *Membership) handleLeave(member serf.Member) {}
+
+func (m *Membership) isLocal(member serf.Member) bool {
+	return false
+}
