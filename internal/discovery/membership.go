@@ -84,14 +84,38 @@ func (m *Membership) evenHandler() {
 			}
 
 		case serf.EventMemberLeave, serf.EventMemberFailed:
+			for _, member := range e.(serf.MemberEvent).Members {
+				if m.isLocal(member) {
+					return
+				}
+
+				m.handleLeave(member)
+			}
 		}
 	}
 }
 
-func (m *Membership) handleJoin(member serf.Member) {}
+func (m *Membership) handleJoin(member serf.Member) {
+	err := m.handler.Join(member.Name, member.Tags["rpc_addr"])
+	if err != nil {
+		m.logError(err, "failed to leave", member)
+	}
+}
 
-func (m *Membership) handleLeave(member serf.Member) {}
+func (m *Membership) handleLeave(member serf.Member) {
+	if err := m.handler.Leave(member.Name); err != nil {
+		m.logError(err, "failed to leave", member)
+	}
+}
 
 func (m *Membership) isLocal(member serf.Member) bool {
-	return false
+	return m.serf.LocalMember().Name == member.Name
+}
+
+func (m *Membership) Members() []serf.Member {
+	return m.serf.Members()
+}
+
+func (m *Membership) logError(err error, msg string, member serf.Member) {
+
 }
