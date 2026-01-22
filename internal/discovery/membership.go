@@ -121,3 +121,7 @@ func (m *Membership) Members() []serf.Member {
 func (m *Membership) logError(err error, msg string, member serf.Member) {
 
 }
+
+func (m *Membership) Leave() error {
+	return m.serf.Leave()
+}
