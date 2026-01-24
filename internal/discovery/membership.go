@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// Membership represents a wrapper around serft to provide discovery
 type Membership struct {
 	Config
 	handler Handler
@@ -15,6 +16,7 @@ type Membership struct {
 	logger  *zap.Logger
 }
 
+// Config represents configuration parameter for nodes
 type Config struct {
 	NodeName       string
 	BindAddr       string
@@ -22,11 +24,13 @@ type Config struct {
 	StartJoinAddrs []string
 }
 
+// Handler represents an interface that member should implement
 type Handler interface {
 	Join(name, addr string) error
 	Leave(name string) error
 }
 
+// New create a new Membership
 func New(handler Handler, config Config) (*Membership, error) {
 	c := Membership{
 		Config:  config,
@@ -41,6 +45,7 @@ func New(handler Handler, config Config) (*Membership, error) {
 	return &c, nil
 }
 
+// setupSerf sets up serf configuration
 func (m *Membership) setupSerf() (err error) {
 	addr, err := net.ResolveTCPAddr("tcp", m.BindAddr)
 	if err != nil {
@@ -73,6 +78,7 @@ func (m *Membership) setupSerf() (err error) {
 	return nil
 }
 
+// evenHandler handles different event type shuch as EventMemberJoin, EventMemberLeave
 func (m *Membership) evenHandler() {
 	for e := range m.events {
 		switch e.EventType() {
