@@ -5,11 +5,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/hashicorp/serf/serf"
 	"github.com/nico-phil/go-log/internal/discovery"
 	"github.com/stretchr/testify/require"
 	"github.com/travisjeffery/go-dynaport"
 )
 
+// TestMemberShip test discovery functionalities
 func TestMemberShip(t *testing.T) {
 	m, handler := setupMember(t, nil)
 	m, _ = setupMember(t, m)
@@ -21,16 +23,18 @@ func TestMemberShip(t *testing.T) {
 			0 == len(handler.leaves)
 	}, 3*time.Second, 250*time.Millisecond)
 
-	// require.NoError(t, m[2].Leave())
+	require.NoError(t, m[2].Leave())
 
-	// require.Eventually(t, func() bool {
-	// 	return 2 == len(handler.joins) &&
-	// 		3 == len(m[0].Members()) &&
-	// 		0 == len(handler.leaves)
-	// }, 3*time.Second, 250*time.Millisecond)
+	require.Eventually(t, func() bool {
+		return 2 == len(handler.joins) &&
+			3 == len(m[0].Members()) &&
+			serf.StatusLeft == m[0].Members()[2].Status &&
+			1 == len(handler.leaves)
+	}, 3*time.Second, 250*time.Millisecond)
 
 }
 
+// setupMember
 func setupMember(t *testing.T, members []*discovery.Membership) (
 	[]*discovery.Membership, *handler,
 ) {
