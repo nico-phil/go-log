@@ -103,31 +103,42 @@ func (m *Membership) evenHandler() {
 	}
 }
 
+// handleJoin handles join event member
 func (m *Membership) handleJoin(member serf.Member) {
 	err := m.handler.Join(member.Name, member.Tags["rpc_addr"])
 	if err != nil {
-		m.logError(err, "failed to leave", member)
+		m.logError(err, "failed to join", member)
 	}
 }
 
+// handleLeave handles leave event member
 func (m *Membership) handleLeave(member serf.Member) {
 	if err := m.handler.Leave(member.Name); err != nil {
 		m.logError(err, "failed to leave", member)
 	}
 }
 
+// isLocal checks whether a given member is the local member(it self)
 func (m *Membership) isLocal(member serf.Member) bool {
 	return m.serf.LocalMember().Name == member.Name
 }
 
+// Members returns members(node) of the cluster
 func (m *Membership) Members() []serf.Member {
 	return m.serf.Members()
 }
 
+// logError logs error
 func (m *Membership) logError(err error, msg string, member serf.Member) {
-
+	m.logger.Error(
+		msg,
+		zap.Error(err),
+		zap.String("name", member.Name),
+		zap.String("rpc_addr", member.Tags["rpc_addr"]),
+	)
 }
 
+// Leave tells a member to leave the cluster
 func (m *Membership) Leave() error {
 	return m.serf.Leave()
 }
