@@ -2,7 +2,6 @@ package log
 
 import (
 	"context"
-	"fmt"
 	"sync"
 
 	api "github.com/nico-phil/go-log/api/v1"
@@ -72,8 +71,22 @@ func (r *Replicator) replicate(addr string, leave chan struct{}) {
 		}
 	}()
 
-	for r := range records {
-		fmt.Println("r", r)
+	for {
+		select {
+		case <-r.close:
+			return
+		case <-leave:
+			return
+		case record := <-records:
+			_, err := r.LocalServer.Produce(ctx, &api.ProduceRequest{
+				Record: record,
+			})
+
+			if err != nil {
+				r.logError(err, "failed to produce", addr)
+				return
+			}
+		}
 	}
 
 }
