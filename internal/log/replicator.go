@@ -1,6 +1,8 @@
 package log
 
 import (
+	"context"
+	"fmt"
 	"sync"
 
 	api "github.com/nico-phil/go-log/api/v1"
@@ -16,6 +18,7 @@ type Replicator struct {
 	mu          sync.Mutex
 	servers     map[string]chan struct{} // addr->chan
 	closed      bool
+	close       chan struct{}
 }
 
 // Join
@@ -40,8 +43,44 @@ func (r *Replicator) Join(name, addr string) error {
 
 // replicate
 func (r *Replicator) replicate(addr string, leave chan struct{}) {
+	cc, err := grpc.NewClient(addr, r.DialOptions...)
+	if err != nil {
+		r.logError(err, "failed to dial", addr)
+		return
+	}
+	defer cc.Close()
+
+	client := api.NewLogClient(cc)
+
+	ctx := context.Background()
+
+	stream, err := client.ConsumeStream(ctx, &api.ConsumeRequest{Offset: 0})
+	if err != nil {
+		r.logError(err, "failed to consume stream", addr)
+		return
+	}
+
+	records := make(chan *api.Record)
+	go func() {
+		for {
+			recv, err := stream.Recv()
+			if err != nil {
+				r.logError(err, "failed to receive", addr)
+				return
+			}
+			records <- recv.Record
+		}
+	}()
+
+	for r := range records {
+		fmt.Println("r", r)
+	}
 
 }
 
 // init
 func (r *Replicator) init()
+
+func (r *Replicator) logError(err error, msg, addr string) {
+
+}
