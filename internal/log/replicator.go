@@ -122,6 +122,22 @@ func (r *Replicator) init() {
 	}
 }
 
+// Close stops replcation process. it's stops replicate new servers that join the cluster
+// and stop replicate existing server
+func (r *Replicator) Close() error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.init()
+
+	if r.closed {
+		return nil
+	}
+
+	r.closed = true
+	close(r.close)
+	return nil
+}
+
 // logError logs the error
 func (r *Replicator) logError(err error, msg, addr string) {
 	r.logger.Error(
