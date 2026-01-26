@@ -40,7 +40,19 @@ func (r *Replicator) Join(name, addr string) error {
 	return nil
 }
 
+// Leave closes the server leave chanel and delete it from the map
 func (r *Replicator) Leave(name string) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.init()
+
+	if _, ok := r.servers[name]; !ok {
+		return nil
+	}
+
+	close(r.servers[name])
+	delete(r.servers, name)
+
 	return nil
 }
 
