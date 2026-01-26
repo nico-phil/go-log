@@ -44,7 +44,7 @@ func (r *Replicator) Leave(name string) error {
 	return nil
 }
 
-// replicate
+// replicate replicates record from one server to it self
 func (r *Replicator) replicate(addr string, leave chan struct{}) {
 	cc, err := grpc.NewClient(addr, r.DialOptions...)
 	if err != nil {
@@ -110,6 +110,11 @@ func (r *Replicator) init() {
 	}
 }
 
+// logError logs the error
 func (r *Replicator) logError(err error, msg, addr string) {
-
+	r.logger.Error(
+		msg,
+		zap.String("addr", addr),
+		zap.Error(err),
+	)
 }
