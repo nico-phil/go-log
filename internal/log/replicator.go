@@ -40,6 +40,10 @@ func (r *Replicator) Join(name, addr string) error {
 	return nil
 }
 
+func (r *Replicator) Leave(name string) error {
+	return nil
+}
+
 // replicate
 func (r *Replicator) replicate(addr string, leave chan struct{}) {
 	cc, err := grpc.NewClient(addr, r.DialOptions...)
@@ -91,8 +95,20 @@ func (r *Replicator) replicate(addr string, leave chan struct{}) {
 
 }
 
-// init
-func (r *Replicator) init()
+// init initialize logger, server and close chan
+func (r *Replicator) init() {
+	if r.logger == nil {
+		r.logger = zap.L().Named("replicator")
+	}
+
+	if r.servers == nil {
+		r.servers = make(map[string]chan struct{})
+	}
+
+	if r.close == nil {
+		r.close = make(chan struct{})
+	}
+}
 
 func (r *Replicator) logError(err error, msg, addr string) {
 
