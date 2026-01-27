@@ -6,10 +6,13 @@ import (
 	"net"
 	"sync"
 
+	"github.com/nico-phil/go-log/internal/auth"
 	"github.com/nico-phil/go-log/internal/discovery"
 	"github.com/nico-phil/go-log/internal/log"
+	"github.com/nico-phil/go-log/internal/server"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 // Agent contains All the differents components of system
@@ -56,7 +59,11 @@ func New(config Config) (*Agent, error) {
 		shutdowns: make(chan struct{}),
 	}
 
-	setup := []func() error{}
+	setup := []func() error{
+		a.setupLog,
+		a.setupLogger,
+		a.setupServer,
+	}
 
 	for _, fn := range setup {
 		if err := fn(); err != nil {
@@ -89,3 +96,49 @@ func (a *Agent) setupLogger() error {
 
 	return nil
 }
+
+// setupServer sets up the server for the agent
+func (a *Agent) setupServer() error {
+	autorizer := auth.New(
+		a.Config.ACLModelFile,
+		a.Config.ACLPolicyFile,
+	)
+
+	serverConfig := server.Config{
+		CommitLog:  a.log,
+		Authorizer: autorizer,
+	}
+
+	var opts []grpc.ServerOption
+	if a.Config.ServerTlsConfig != nil {
+		creds := credentials.NewTLS(a.Config.ServerTlsConfig)
+		opts = append(opts, grpc.Creds(creds))
+	}
+
+	var err error
+	a.server, err = server.NewGRPCServer(&serverConfig, opts...)
+	if err != nil {
+		return err
+	}
+
+	rpcAddr, err := a.RPCAddr()
+	if err != nil {
+		return err
+	}
+
+	ln, err := net.Listen("tcp", rpcAddr)
+	if err != nil {
+		return err
+	}
+
+	go func() {
+		if err := a.server.Serve(ln); err != nil {
+			a.Shutdown()
+		}
+	}()
+
+	return err
+
+}
+
+func (a *Agent) Shutdown() {}
