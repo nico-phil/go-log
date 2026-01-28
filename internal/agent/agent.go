@@ -180,6 +180,6 @@ func (a *Agent) SetupMemberShip() error {
 }
 
 // Shutdown
-func (a *Agent) Shutdown() {
-
+func (a *Agent) Shutdown() error {
+	return nil
 }
