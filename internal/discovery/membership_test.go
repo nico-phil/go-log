@@ -51,7 +51,7 @@ func setupMember(t *testing.T, members []*discovery.Membership) (
 	}
 	h := &handler{}
 	if len(members) == 0 {
-		h.joins = make(chan map[string]string, 3)
+		h.joins = make(chan map[string]string, 2)
 		h.leaves = make(chan string, 3)
 	} else {
 		c.StartJoinAddrs = []string{

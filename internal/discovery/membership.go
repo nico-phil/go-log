@@ -7,7 +7,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Membership represents a wrapper around serft to provide discovery
+// Membership represents a wrapper around serf to provide discovery
 type Membership struct {
 	Config
 	handler Handler
