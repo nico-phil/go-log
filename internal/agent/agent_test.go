@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"testing"
+	"time"
 
 	api "github.com/nico-phil/go-log/api/v1"
 	"github.com/nico-phil/go-log/internal/config"
@@ -64,8 +65,18 @@ func TestAgent(t *testing.T) {
 		require.NoError(t, err)
 
 		agents[i] = ag
-		// shutdown agent
 	}
+
+	// shutdown agent
+	defer func() {
+		for _, agent := range agents {
+			err := agent.Shutdown()
+			require.NoError(t, err)
+			require.NoError(t, os.RemoveAll(agent.Datadir))
+		}
+	}()
+
+	time.Sleep(3 * time.Second)
 
 	leaderClient := client(t, agents[0])
 
@@ -81,6 +92,19 @@ func TestAgent(t *testing.T) {
 	})
 	require.NoError(t, err)
 	require.Equal(t, consumeReponse.Record.Value, want)
+
+	// we want to wait until replication finished
+	time.Sleep(3 * time.Second)
+
+	followerClient := client(t, agents[2])
+	consumeReponse, err = followerClient.Consume(context.Background(), &api.ConsumeRequest{
+		Offset: produceReponse.Offset,
+	})
+
+	require.NoError(t, err)
+
+	require.Equal(t, consumeReponse.Record.Value, want)
+
 }
 
 func client(t *testing.T, agent *Agent) api.LogClient {
