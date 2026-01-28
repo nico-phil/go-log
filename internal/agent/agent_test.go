@@ -1,20 +1,21 @@
 package agent
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"testing"
 
+	api "github.com/nico-phil/go-log/api/v1"
 	"github.com/nico-phil/go-log/internal/config"
 	"github.com/stretchr/testify/require"
 	"github.com/travisjeffery/go-dynaport"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 // TestAgent
 func TestAgent(t *testing.T) {
-	// lis, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", ports[0]))
-	// require.NoError(t, err)
-
 	serverTlsconfig, err := config.SetupTLSConfig(config.TLSConfig{
 		CertFile:      config.ServerCertFile,
 		KeyFile:       config.ServerKeyFile,
@@ -33,6 +34,7 @@ func TestAgent(t *testing.T) {
 	})
 	require.NoError(t, err)
 
+	agents := make([]*Agent, 3)
 	for i := 0; i < 3; i++ {
 
 		dir, err := os.MkdirTemp("", "agent-test-log")
@@ -58,9 +60,40 @@ func TestAgent(t *testing.T) {
 			ACLPolicyFile:   config.ACLPolicyFile,
 		}
 
-		_, err = New(config)
-		// shutdown agen
+		ag, err := New(config)
 		require.NoError(t, err)
+
+		agents[i] = ag
+		// shutdown agent
 	}
 
+	leaderClient := client(t, agents[0])
+
+	want := []byte("hello")
+
+	produceReponse, err := leaderClient.Produce(context.Background(), &api.ProduceRequest{
+		Record: &api.Record{Value: want},
+	})
+	require.NoError(t, err)
+
+	consumeReponse, err := leaderClient.Consume(context.Background(), &api.ConsumeRequest{
+		Offset: produceReponse.Offset,
+	})
+	require.NoError(t, err)
+	require.Equal(t, consumeReponse.Record.Value, want)
+}
+
+func client(t *testing.T, agent *Agent) api.LogClient {
+	tlsCreds := credentials.NewTLS(agent.PeerTlsConfig)
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(tlsCreds)}
+
+	rpcAddr, err := agent.Config.RPCAddr()
+	require.NoError(t, err)
+
+	conn, err := grpc.NewClient(rpcAddr, opts...)
+	require.NoError(t, err)
+
+	logClient := api.NewLogClient(conn)
+
+	return logClient
 }
