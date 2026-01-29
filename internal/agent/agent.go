@@ -181,5 +181,27 @@ func (a *Agent) SetupMemberShip() error {
 
 // Shutdown
 func (a *Agent) Shutdown() error {
+	a.shutdownLock.Lock()
+	defer a.shutdownLock.Unlock()
+	if a.shutdown {
+		return nil
+	}
+	a.shutdown = true
+	close(a.shutdowns)
+
+	shutdown := []func() error{
+		a.membership.Leave,
+		a.replicator.Close,
+		func() error {
+			a.server.GracefulStop()
+			return nil
+		},
+		a.log.Close,
+	}
+	for _, fn := range shutdown {
+		if err := fn(); err != nil {
+			return err
+		}
+	}
 	return nil
 }
