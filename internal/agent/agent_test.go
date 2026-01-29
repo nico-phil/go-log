@@ -96,7 +96,7 @@ func TestAgent(t *testing.T) {
 	// we want to wait until replication finished
 	time.Sleep(3 * time.Second)
 
-	followerClient := client(t, agents[2])
+	followerClient := client(t, agents[1])
 	consumeReponse, err = followerClient.Consume(context.Background(), &api.ConsumeRequest{
 		Offset: produceReponse.Offset,
 	})
