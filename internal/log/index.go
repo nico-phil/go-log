@@ -52,6 +52,7 @@ func NewIndex(f *os.File, c Config) (*index, error) {
 
 	fmt.Println("file size", idx.size)
 	fmt.Println("mmap len", len(idx.MMap))
+	fmt.Println("MaxIndexBytes", c.Segment.MaxIndexBytes)
 
 	if err != nil {
 		return nil, err
@@ -72,9 +73,6 @@ func (i *index) Write(off uint32, pos uint64) error {
 	enc.PutUint64(i.MMap[i.size+offWidth:i.size+entryWidth], pos)
 	i.size += uint64(entryWidth)
 
-	if err := os.Truncate(i.file.Name(), int64(i.size)); err != nil {
-		return err
-	}
 	return nil
 }
 
@@ -84,11 +82,12 @@ func (i *index) Read(in int64) (out uint32, pos uint64, err error) {
 		return 0, 0, io.EOF
 	}
 
-	// if in == -1 {
-	// 	out = uint32((i.size / entryWidth) - 1) // 24/12 = 1
-	// } else {
-	// 	out = uint32(in)
-	// }
+	// return the last entry when in = -1
+	if in == -1 {
+		out = uint32((i.size / entryWidth) - 1) // 24/12 = 1
+	} else {
+		out = uint32(in)
+	}
 
 	pos = uint64(out) * entryWidth
 
