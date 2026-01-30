@@ -76,8 +76,6 @@ func TestAgent(t *testing.T) {
 		}
 	}()
 
-	time.Sleep(3 * time.Second)
-
 	leaderClient := client(t, agents[0])
 
 	want := []byte("hello")
@@ -107,6 +105,7 @@ func TestAgent(t *testing.T) {
 
 }
 
+// client creates new client for testing purpose
 func client(t *testing.T, agent *Agent) api.LogClient {
 	tlsCreds := credentials.NewTLS(agent.PeerTlsConfig)
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(tlsCreds)}
