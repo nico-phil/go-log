@@ -1,48 +1,61 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-	"log"
-	"net"
 	"os"
 
 	llog "github.com/nico-phil/go-log/internal/log"
-	"github.com/nico-phil/go-log/internal/server"
 )
 
 func main() {
-
-	err := os.Mkdir("data", os.ModeDir)
-	if err != nil && !errors.Is(err, os.ErrExist) {
-		log.Fatal("error creating dir:", err)
-	}
-	c := llog.Config{}
-	c.Segment.MaxStoreBytes = 1024
-	c.Segment.MaxIndexBytes = 32
-
-	wLog, err := llog.NewLog("data", c)
+	f, err := os.OpenFile("index-demo", os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
-		log.Fatal("error-Newlog:", err)
+		fmt.Printf("OpenFile: %v\n", err)
+		return
 	}
+	conf := llog.Config{}
+	conf.Segment.MaxIndexBytes = 1024
 
-	config := server.Config{
-		CommitLog: wLog,
-	}
-
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", 4000))
+	idx, err := llog.NewIndex(f, conf)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Printf("NewIndex: %v\n", err)
+		return
+	}
+	defer idx.Close()
+
+	err = idx.Write(0, 10)
+	if err != nil {
+		fmt.Printf("WRITE: %v\n", err)
 	}
 
-	srv, err := server.NewGRPCServer(&config)
+	out, pos, err := idx.Read(0)
 	if err != nil {
+		fmt.Printf("READ: %v\n", err)
 		return
 	}
 
-	err = srv.Serve(lis)
+	fmt.Println("out", out)
+	fmt.Println("pos", pos)
+
+	err = idx.Write(1, 18)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Printf("WRITE: %v\n", err)
 	}
+	out, pos, err = idx.Read(1)
+	if err != nil {
+		fmt.Printf("READ: %v\n", err)
+		return
+	}
+
+	fmt.Println("out", out)
+	fmt.Println("pos", pos)
+
+	out, pos, err = idx.Read(-1)
+	if err != nil {
+		fmt.Printf("READ: %v\n", err)
+		return
+	}
+	fmt.Println("last-out", out)
+	fmt.Println("last-pos", pos)
 
 }
