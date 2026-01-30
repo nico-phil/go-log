@@ -84,11 +84,11 @@ func (i *index) Read(in int64) (out uint32, pos uint64, err error) {
 		return 0, 0, io.EOF
 	}
 
-	if in == -1 {
-		out = uint32((i.size / entryWidth) - 1) // 24/12 = 1
-	} else {
-		out = uint32(in)
-	}
+	// if in == -1 {
+	// 	out = uint32((i.size / entryWidth) - 1) // 24/12 = 1
+	// } else {
+	// 	out = uint32(in)
+	// }
 
 	pos = uint64(out) * entryWidth
 
