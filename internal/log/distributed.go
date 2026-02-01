@@ -14,6 +14,10 @@ type DistributedLog struct {
 	raft   *raft.Raft
 }
 
+type fsm struct {
+	log *Log
+}
+
 // NewDistrubutedLog create a new distributed log
 func NewDistrubutedLog(dataDir string, config Config) (*DistributedLog, error) {
 	l := &DistributedLog{
@@ -44,5 +48,12 @@ func (l *DistributedLog) setupLog(dataDir string) error {
 
 // setupRaft configures and creates the server's raft instance
 func (l *DistributedLog) setupRaft(dataDir string) error {
+	_ = &fsm{log: l.log}
+
+	logDir := path.Join(dataDir, "raft", "log")
+	err := os.MkdirAll(logDir, 0755)
+	if err != nil {
+		return err
+	}
 	return nil
 }
