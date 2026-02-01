@@ -1,6 +1,11 @@
 package log
 
-import "github.com/hashicorp/raft"
+import (
+	"os"
+	"path"
+
+	"github.com/hashicorp/raft"
+)
 
 type DistributedLog struct {
 	config Config
@@ -9,8 +14,23 @@ type DistributedLog struct {
 }
 
 func NewDistrubutedLog(dataDir string, config Config) (*DistributedLog, error) {
-	dl := &DistributedLog{
+	l := &DistributedLog{
 		config: config,
 	}
-	return dl, nil
+	if err := l.setupLog(dataDir); err != nil {
+		return nil, err
+	}
+	return l, nil
+}
+
+func (l *DistributedLog) setupLog(dataDir string) error {
+	logDir := path.Join(dataDir, "log")
+	if err := os.MkdirAll(logDir, 0755); err != nil {
+		return err
+	}
+
+	var err error
+	l.log, err = NewLog(logDir, l.config)
+
+	return err
 }
