@@ -22,6 +22,11 @@ func NewDistrubutedLog(dataDir string, config Config) (*DistributedLog, error) {
 	if err := l.setupLog(dataDir); err != nil {
 		return nil, err
 	}
+
+	if err := l.setupRaft(dataDir); err != nil {
+		return nil, err
+	}
+
 	return l, nil
 }
 
@@ -35,4 +40,9 @@ func (l *DistributedLog) setupLog(dataDir string) error {
 	l.log, err = NewLog(logDir, l.config)
 
 	return err
+}
+
+// setupRaft configures and creates the server's raft instance
+func (l *DistributedLog) setupRaft(dataDir string) error {
+	return nil
 }
