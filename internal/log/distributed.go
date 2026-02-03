@@ -18,6 +18,10 @@ type fsm struct {
 	log *Log
 }
 
+type logStore struct {
+	*Log
+}
+
 // NewDistrubutedLog create a new distributed log
 func NewDistrubutedLog(dataDir string, config Config) (*DistributedLog, error) {
 	l := &DistributedLog{
@@ -55,5 +59,20 @@ func (l *DistributedLog) setupRaft(dataDir string) error {
 	if err != nil {
 		return err
 	}
+
+	logConfig := l.config
+	logConfig.Segment.InitialOffset = 1
+	_, err = newLogStore(logDir, logConfig)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func newLogStore(logDir string, config Config) (*logStore, error) {
+	return nil, nil
+}
+
+func (l *DistributedLog) Create() error {
 	return nil
 }
