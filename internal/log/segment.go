@@ -121,7 +121,7 @@ func (s *segment) IsMaxed() bool {
 		s.index.size >= s.config.Segment.MaxIndexBytes
 }
 
-// Remove deletes files(index and store) for ossociated with the segemnt
+// Remove deletes files(index and store) associated with the segemnt
 func (s *segment) Remove() error {
 	if err := s.Close(); err != nil {
 		return err
