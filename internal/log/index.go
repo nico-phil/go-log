@@ -1,7 +1,6 @@
 package log
 
 import (
-	"fmt"
 	"io"
 	"os"
 
@@ -49,10 +48,6 @@ func NewIndex(f *os.File, c Config) (*index, error) {
 		gommap.PROT_READ|gommap.PROT_WRITE,
 		gommap.MAP_SHARED,
 	)
-
-	fmt.Println("file size", idx.size)
-	fmt.Println("mmap len", len(idx.MMap))
-	fmt.Println("MaxIndexBytes", c.Segment.MaxIndexBytes)
 
 	if err != nil {
 		return nil, err
