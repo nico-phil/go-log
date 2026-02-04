@@ -1,7 +1,6 @@
 package log
 
 import (
-	"fmt"
 	"io"
 	"os"
 	"testing"
@@ -37,7 +36,6 @@ func TestIndex(t *testing.T) {
 		require.NoError(t, err)
 
 		_, pos, err := idx.Read(int64(want.Off))
-		fmt.Printf("READ-idx: %d-%d\n", want.Off, pos)
 		require.NoError(t, err)
 		require.Equal(t, want.Pos, pos)
 	}
@@ -45,7 +43,8 @@ func TestIndex(t *testing.T) {
 	//index should error when reading past existing entries
 	_, _, err = idx.Read(int64(len(entries)))
 	require.Equal(t, io.EOF, err)
-	_ = idx.Close()
+	err = idx.Close()
+	require.NoError(t, err)
 
 	// index should build its state from the existing file
 	f, _ = os.OpenFile(f.Name(), os.O_RDWR, 0600)
