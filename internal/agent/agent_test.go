@@ -46,7 +46,7 @@ func TestAgent(t *testing.T) {
 
 		var startJoinAddrs []string
 		if i != 0 {
-			startJoinAddrs = append(startJoinAddrs, fmt.Sprintf("%d", i))
+			startJoinAddrs = append(startJoinAddrs, agents[0].Config.BindAddr)
 		}
 
 		config := Config{
@@ -56,7 +56,7 @@ func TestAgent(t *testing.T) {
 			Datadir:         dir,
 			BindAddr:        bindArr,
 			RPCPort:         ports[1],
-			StartJoinAddr:   make([]string, 0),
+			StartJoinAddr:   startJoinAddrs,
 			ACLModelFile:    config.ACLModelFile,
 			ACLPolicyFile:   config.ACLPolicyFile,
 		}
