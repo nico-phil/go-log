@@ -37,25 +37,30 @@ func main() {
 		return
 	}
 
-	err = os.Mkdir("agent-demo", 0755)
-	if err != nil {
-		return
-	}
-
 	agents := make([]*agent.Agent, 3)
 	for i := 0; i < 3; i++ {
 
 		ports := dynaport.Get(2)
 		bindArr := fmt.Sprintf("127.0.0.1:%d", ports[0])
 
+		err = os.Mkdir(fmt.Sprintf("%s%d", "agent-demo", i), 0755)
+		if err != nil {
+			return
+		}
+
+		var startJoinAddrs []string
+		if i != 0 {
+			startJoinAddrs = append(startJoinAddrs, agents[0].Config.BindAddr)
+		}
+
 		config := agent.Config{
 			NodeName:        fmt.Sprintf("%d", i),
 			ServerTlsConfig: serverTlsconfig,
 			PeerTlsConfig:   peerTlsConfig,
-			Datadir:         "agent-demo",
+			Datadir:         fmt.Sprintf("%s%d", "agent-demo", i),
 			BindAddr:        bindArr,
 			RPCPort:         ports[1],
-			StartJoinAddr:   make([]string, 0),
+			StartJoinAddr:   startJoinAddrs,
 			ACLModelFile:    config.ACLModelFile,
 			ACLPolicyFile:   config.ACLPolicyFile,
 		}
