@@ -1,61 +1,100 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"time"
 
-	llog "github.com/nico-phil/go-log/internal/log"
+	api "github.com/nico-phil/go-log/api/v1"
+	"github.com/nico-phil/go-log/internal/agent"
+	"github.com/nico-phil/go-log/internal/config"
+	"github.com/travisjeffery/go-dynaport"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 func main() {
-	f, err := os.OpenFile("index-demo", os.O_RDWR|os.O_CREATE, 0644)
+	serverTlsconfig, err := config.SetupTLSConfig(config.TLSConfig{
+		CertFile:      config.ServerCertFile,
+		KeyFile:       config.ServerKeyFile,
+		CAFile:        config.CAFile,
+		ServerAddress: "127.0.0.1",
+		Server:        true,
+	})
 	if err != nil {
-		fmt.Printf("OpenFile: %v\n", err)
-		return
-	}
-	conf := llog.Config{}
-	conf.Segment.MaxIndexBytes = 1024
-
-	idx, err := llog.NewIndex(f, conf)
-	if err != nil {
-		fmt.Printf("NewIndex: %v\n", err)
-		return
-	}
-	defer idx.Close()
-
-	err = idx.Write(0, 10)
-	if err != nil {
-		fmt.Printf("WRITE: %v\n", err)
-	}
-
-	out, pos, err := idx.Read(0)
-	if err != nil {
-		fmt.Printf("READ: %v\n", err)
 		return
 	}
 
-	fmt.Println("out", out)
-	fmt.Println("pos", pos)
-
-	err = idx.Write(1, 18)
+	peerTlsConfig, err := config.SetupTLSConfig(config.TLSConfig{
+		CertFile:      config.RootClientCertFile,
+		KeyFile:       config.RootClientKeyFile,
+		CAFile:        config.CAFile,
+		ServerAddress: "127.0.0.1",
+		Server:        false,
+	})
 	if err != nil {
-		fmt.Printf("WRITE: %v\n", err)
-	}
-	out, pos, err = idx.Read(1)
-	if err != nil {
-		fmt.Printf("READ: %v\n", err)
 		return
 	}
 
-	fmt.Println("out", out)
-	fmt.Println("pos", pos)
-
-	out, pos, err = idx.Read(-1)
+	err = os.Mkdir("agent-demo", 0755)
 	if err != nil {
-		fmt.Printf("READ: %v\n", err)
 		return
 	}
-	fmt.Println("last-out", out)
-	fmt.Println("last-pos", pos)
 
+	agents := make([]*agent.Agent, 3)
+	for i := 0; i < 3; i++ {
+
+		ports := dynaport.Get(2)
+		bindArr := fmt.Sprintf("127.0.0.1:%d", ports[0])
+
+		config := agent.Config{
+			NodeName:        fmt.Sprintf("%d", i),
+			ServerTlsConfig: serverTlsconfig,
+			PeerTlsConfig:   peerTlsConfig,
+			Datadir:         "agent-demo",
+			BindAddr:        bindArr,
+			RPCPort:         ports[1],
+			StartJoinAddr:   make([]string, 0),
+			ACLModelFile:    config.ACLModelFile,
+			ACLPolicyFile:   config.ACLPolicyFile,
+		}
+
+		ag, _ := agent.New(config)
+		agents[i] = ag
+	}
+
+	leaderClient := client(agents[0])
+
+	want := []byte("hello")
+	produceReponse, err := leaderClient.Produce(context.Background(), &api.ProduceRequest{
+		Record: &api.Record{Value: want},
+	})
+
+	consumeReponse, err := leaderClient.Consume(context.Background(), &api.ConsumeRequest{
+		Offset: produceReponse.Offset,
+	})
+
+	fmt.Println("consumeReponse0", consumeReponse.Record)
+
+	time.Sleep(3 * time.Second)
+
+	followerClient := client(agents[1])
+	consumeReponse, err = followerClient.Consume(context.Background(), &api.ConsumeRequest{
+		Offset: produceReponse.Offset,
+	})
+
+}
+
+func client(agent *agent.Agent) api.LogClient {
+	tlsCreds := credentials.NewTLS(agent.PeerTlsConfig)
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(tlsCreds)}
+
+	rpcAddr, _ := agent.Config.RPCAddr()
+
+	conn, _ := grpc.NewClient(rpcAddr, opts...)
+
+	logClient := api.NewLogClient(conn)
+
+	return logClient
 }
