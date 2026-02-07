@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"os"
 	"time"
 
 	api "github.com/nico-phil/go-log/api/v1"
@@ -43,11 +42,6 @@ func main() {
 		ports := dynaport.Get(2)
 		bindArr := fmt.Sprintf("127.0.0.1:%d", ports[0])
 
-		err = os.Mkdir(fmt.Sprintf("%s%d", "agent-demo", i), 0755)
-		if err != nil {
-			return
-		}
-
 		var startJoinAddrs []string
 		if i != 0 {
 			startJoinAddrs = append(startJoinAddrs, agents[0].Config.BindAddr)
@@ -57,7 +51,7 @@ func main() {
 			NodeName:        fmt.Sprintf("%d", i),
 			ServerTlsConfig: serverTlsconfig,
 			PeerTlsConfig:   peerTlsConfig,
-			Datadir:         fmt.Sprintf("%s%d", "agent-demo", i),
+			Datadir:         "agent-demo",
 			BindAddr:        bindArr,
 			RPCPort:         ports[1],
 			StartJoinAddr:   startJoinAddrs,
