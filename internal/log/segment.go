@@ -2,7 +2,6 @@ package log
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path"
 
@@ -14,8 +13,8 @@ import (
 type segment struct {
 	store      *store
 	index      *index
-	baseOffset uint64 // the segment baseoffset is the offset in the mmap
-	nextOffset uint64
+	baseOffset uint64 // baseoffset is the start number of Index file
+	nextOffset uint64 // nextOffset is the where we append data to in the Index file
 	config     Config
 }
 
@@ -57,7 +56,6 @@ func NewSegment(dir string, baseOffset uint64, c Config) (*segment, error) {
 
 	off, _, err := s.index.Read(-1)
 	if err != nil {
-		log.Printf("read(-1) %v", err)
 		s.nextOffset = baseOffset
 	} else {
 		s.nextOffset = baseOffset + uint64(off) + 1
@@ -85,7 +83,6 @@ func (s *segment) Append(record *api.Record) (offset uint64, err error) {
 		uint32(s.nextOffset-uint64(s.baseOffset)),
 		pos,
 	); err != nil {
-		fmt.Println("error here", err)
 		return 0, err
 	}
 
