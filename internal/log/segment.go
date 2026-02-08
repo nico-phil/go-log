@@ -162,3 +162,10 @@ func nearestMultiple(j, k int64) int64 {
 func (s *segment) ReadIndex(in int64) (out uint32, pos uint64, err error) {
 	return s.index.Read(in)
 }
+func (s *segment) BaseOffset() uint64 {
+	return s.baseOffset
+}
+
+func (s *segment) NextOffset() uint64 {
+	return s.nextOffset
+}
