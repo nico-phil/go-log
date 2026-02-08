@@ -11,14 +11,14 @@ import (
 // TestLog tests the Log
 func TestLog(t *testing.T) {
 
-	senarios := map[string]func(t *testing.T, log *Log){
+	scenarios := map[string]func(t *testing.T, log *Log){
 		"append and read success":    testAppendRead,
 		"offset out of range":        testOutOfRangeErr,
 		"init with existing segment": testInitExisting,
 		"truncate":                   testTruncate,
 	}
 
-	for sc, fn := range senarios {
+	for sc, fn := range scenarios {
 		t.Run(sc, func(t *testing.T) {
 			dir, err := os.MkdirTemp("", "store-test")
 			require.NoError(t, err)
@@ -32,6 +32,7 @@ func TestLog(t *testing.T) {
 
 			fn(t, log)
 		})
+
 	}
 
 }
@@ -52,12 +53,14 @@ func testAppendRead(t *testing.T, l *Log) {
 	require.Equal(t, rec.Value, read.Value)
 }
 
+// testOutOfRangeErr tests out of range secenario when the just created
 func testOutOfRangeErr(t *testing.T, l *Log) {
 	read, err := l.Read(1)
 	require.Error(t, err)
 	require.Nil(t, read)
 }
 
+// testInitExisting tests log reiniatization, if we recreate an existing log, it should be stay the same
 func testInitExisting(t *testing.T, l *Log) {
 	rec := &api.Record{
 		Value: []byte("hello world"),
@@ -90,6 +93,7 @@ func testInitExisting(t *testing.T, l *Log) {
 
 }
 
+// testTruncate tests truncate old files
 func testTruncate(t *testing.T, l *Log) {
 	append := &api.Record{
 		Value: []byte("hello world"),
