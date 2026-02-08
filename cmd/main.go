@@ -3,17 +3,44 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
 	"time"
 
 	api "github.com/nico-phil/go-log/api/v1"
 	"github.com/nico-phil/go-log/internal/agent"
 	"github.com/nico-phil/go-log/internal/config"
+	"github.com/nico-phil/go-log/internal/log"
 	"github.com/travisjeffery/go-dynaport"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
 
 func main() {
+	err := os.Mkdir("segment-demo", 0755)
+
+	seg0, err := log.NewSegment("segment-demo", 0, log.Config{})
+	if err != nil {
+		return
+	}
+
+	fmt.Println("seg0", seg0.BaseOffset())
+
+	seg1, err := log.NewSegment("segment-demo", 1, log.Config{})
+	if err != nil {
+		return
+	}
+
+	fmt.Println("seg1", seg1.BaseOffset())
+
+	seg2, err := log.NewSegment("segment-demo", 2, log.Config{})
+	if err != nil {
+		return
+	}
+
+	fmt.Println("seg2", seg2.BaseOffset())
+}
+
+func runAgent() {
 	serverTlsconfig, err := config.SetupTLSConfig(config.TLSConfig{
 		CertFile:      config.ServerCertFile,
 		KeyFile:       config.ServerKeyFile,
@@ -82,7 +109,6 @@ func main() {
 	consumeReponse, err = followerClient.Consume(context.Background(), &api.ConsumeRequest{
 		Offset: produceReponse.Offset,
 	})
-
 }
 
 func client(agent *agent.Agent) api.LogClient {
