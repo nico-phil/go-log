@@ -18,10 +18,10 @@ type Membership struct {
 
 // Config represents configuration parameter for nodes
 type Config struct {
-	NodeName       string
-	BindAddr       string
-	Tags           map[string]string
-	StartJoinAddrs []string
+	NodeName       string            // NodeName
+	BindAddr       string            // BindAddr
+	Tags           map[string]string // Tags
+	StartJoinAddrs []string          // StartJoinAddrs
 }
 
 // Handler represents an interface that member should implement
@@ -37,6 +37,7 @@ func New(handler Handler, config Config) (*Membership, error) {
 		handler: handler,
 		logger:  zap.L().Named("membership"),
 	}
+
 	err := c.setupSerf()
 	if err != nil {
 		return nil, err
