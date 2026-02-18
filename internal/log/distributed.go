@@ -146,6 +146,22 @@ func (l *DistributedLog) setupRaft(dataDir string) error {
 	return err
 }
 
+// Append appends a record to the wal log
+func (l *DistributedLog) Append(record *api.Record) (uint64, error) {
+	res, err := l.apply(AppendRequestType, &api.ProduceRequest{Record: record})
+	if err != nil {
+		return 0, err
+	}
+
+	off := res.(*api.ConsumeResponse).Record.Offset
+	return off, nil
+
+}
+
+func (l DistributedLog) apply(reqType RequestType, req proto.Message) (interface{}, error) {
+	return nil, nil
+}
+
 func (l *logStore) GetLog(index uint64, out *raft.Log) error {
 	in, err := l.Read(index)
 	if err != nil {

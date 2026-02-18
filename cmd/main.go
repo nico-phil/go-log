@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	runAgent()
+	
 }
 
 func runAgent() {
