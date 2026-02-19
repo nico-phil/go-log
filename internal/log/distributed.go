@@ -351,7 +351,7 @@ func (l *logStore) DeleteRange(min, max uint64) error {
 
 var _ raft.StreamLayer = (*StreamLayer)(nil)
 
-// StreamLayer represent a streamlayer. it should implment the raft.Streamlayer interface
+// StreamLayer represent a streamlayer in our system. it should implement the raft.Streamlayer interface
 type StreamLayer struct {
 	ln              net.Listener
 	serverTLSConfig *tls.Config
@@ -372,6 +372,8 @@ func NewStreamLayer(
 
 const RaftRPC = 1
 
+// Dial implements the Dial() function of the raft.StreamLayer interface.
+// Dial makes outgoing connections to other servers in the raft cluster
 func (s *StreamLayer) Dial(
 	addr raft.ServerAddress,
 	timeout time.Duration,
@@ -394,6 +396,9 @@ func (s *StreamLayer) Dial(
 	return conn, err
 }
 
+// Accept implements the Accept() function of the raft.StreamLayer interface.
+// it accepts incomming connection and read the byte that identifies the connection
+// and create a server-side tls connection
 func (s *StreamLayer) Accept() (net.Conn, error) {
 	conn, err := s.ln.Accept()
 	if err != nil {
@@ -416,16 +421,20 @@ func (s *StreamLayer) Accept() (net.Conn, error) {
 	return conn, nil
 }
 
+// Close implements the Close() function of the raft.StreamLayer interface
+// Close closes the listener
 func (s *StreamLayer) Close() error {
 	return s.ln.Close()
 }
 
+// Addr implements the Addr() function of raft.StreamLayer interface
 func (s *StreamLayer) Addr() net.Addr {
 	return s.ln.Addr()
 }
 
 // Discovery Integration
 
+// Join Adds the server to the raft cluster. each server is added as a voter
 func (l *DistributedLog) Join(id, addr string) error {
 	configFuture := l.raft.GetConfiguration()
 	if err := configFuture.Error(); err != nil {
@@ -456,4 +465,30 @@ func (l *DistributedLog) Join(id, addr string) error {
 func (l *DistributedLog) Leave(id string) error {
 	removeFuture := l.raft.RemoveServer(raft.ServerID(id), 0, 0)
 	return removeFuture.Error()
+}
+
+// WaitForLeader blocks until the cluster has elected a leader or times out
+func (l *DistributedLog) WaitForLeader(timeout time.Duration) error {
+	timeoutc := time.After(timeout)
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-timeoutc:
+			return fmt.Errorf("timed out")
+		case <-ticker.C:
+			if l := l.raft.Leader(); l != "" {
+				return nil
+			}
+		}
+	}
+}
+
+// Close shutdown the raft instance and closes the local log
+func (l *DistributedLog) Close() error {
+	f := l.raft.Shutdown()
+	if err := f.Error(); err != nil {
+		return err
+	}
+	return l.log.Close()
 }
