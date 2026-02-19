@@ -148,18 +148,54 @@ func (l *DistributedLog) setupRaft(dataDir string) error {
 
 // Append appends a record to the wal log
 func (l *DistributedLog) Append(record *api.Record) (uint64, error) {
-	res, err := l.apply(AppendRequestType, &api.ProduceRequest{Record: record})
+	res, err := l.apply(
+		AppendRequestType,
+		&api.ProduceRequest{Record: record},
+	)
 	if err != nil {
 		return 0, err
 	}
 
-	off := res.(*api.ConsumeResponse).Record.Offset
-	return off, nil
+	off, ok := res.(*api.ConsumeResponse)
+	if !ok {
+		return 0, err
+	}
+	return off.Record.Offset, nil
 
 }
 
+// apply wraps raft's API to apply the request and return their response
 func (l DistributedLog) apply(reqType RequestType, req proto.Message) (interface{}, error) {
-	return nil, nil
+	var buf bytes.Buffer
+	_, err := buf.Write([]byte{byte(reqType)})
+	if err != nil {
+		return nil, err
+	}
+	b, err := proto.Marshal(req)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = buf.Write(b)
+	if err != nil {
+		return nil, err
+	}
+	timeout := time.Second * 10
+	future := l.raft.Apply(buf.Bytes(), timeout)
+	if future.Error() != nil {
+		return nil, future.Error()
+	}
+
+	res := future.Response()
+	if err, ok := res.(error); !ok {
+		return nil, err
+	}
+	return res, nil
+}
+
+// Read reads the record for the offset from the server' log
+func (l *DistributedLog) Read(offset uint64) (*api.Record, error) {
+	return l.log.Read(offset)
 }
 
 func (l *logStore) GetLog(index uint64, out *raft.Log) error {
