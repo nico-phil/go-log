@@ -198,10 +198,6 @@ func (l *DistributedLog) Read(offset uint64) (*api.Record, error) {
 	return l.log.Read(offset)
 }
 
-func (l *DistributedLog) Create() error {
-	return nil
-}
-
 var _ raft.FSM = (*fsm)(nil)
 
 // fsm represents the finite-state machine
@@ -217,6 +213,8 @@ const (
 	AppendRequestType RequestType = 0
 )
 
+// Apply represent a method to satisfy the raft RSM interface.
+// Apply is called once a log entry is committed by a majority of the cluster.
 func (l *fsm) Apply(record *raft.Log) interface{} {
 	buf := record.Data
 	reqType := RequestType(buf[0])
@@ -227,41 +225,13 @@ func (l *fsm) Apply(record *raft.Log) interface{} {
 	return nil
 }
 
-// applyAppend actually applies the command stored in the finite-state machine to wal
-func (l *fsm) applyAppend(b []byte) interface{} {
-	var req api.ProduceRequest
-	err := proto.Unmarshal(b, &req)
-	if err != nil {
-		return err
-	}
-	offset, err := l.log.Append(req.Record)
-	if err != nil {
-		return err
-	}
-	return &api.ProduceResponse{Offset: int64(offset)}
-}
-
+// Snapshot peridically this method to spashot its state
 func (f *fsm) Snapshot() (raft.FSMSnapshot, error) {
 	r := f.log.Reader()
 	return &snapshot{reader: r}, nil
 }
 
-var _ raft.FSMSnapshot = (*snapshot)(nil)
-
-type snapshot struct {
-	reader io.Reader
-}
-
-func (s *snapshot) Persist(sink raft.SnapshotSink) error {
-	if _, err := io.Copy(sink, s.reader); err != nil {
-		_ = sink.Cancel()
-		return err
-	}
-	return sink.Close()
-}
-
-func (s *snapshot) Release() {}
-
+// Restore raft use this to restore the fsm from snapshot
 func (f *fsm) Restore(r io.ReadCloser) error {
 	b := make([]byte, lenWidth)
 	var buf bytes.Buffer
@@ -293,6 +263,36 @@ func (f *fsm) Restore(r io.ReadCloser) error {
 	}
 	return nil
 }
+
+// applyAppend actually applies the command stored in the finite-state machine to wal
+func (l *fsm) applyAppend(b []byte) interface{} {
+	var req api.ProduceRequest
+	err := proto.Unmarshal(b, &req)
+	if err != nil {
+		return err
+	}
+	offset, err := l.log.Append(req.Record)
+	if err != nil {
+		return err
+	}
+	return &api.ProduceResponse{Offset: int64(offset)}
+}
+
+var _ raft.FSMSnapshot = (*snapshot)(nil)
+
+type snapshot struct {
+	reader io.Reader
+}
+
+func (s *snapshot) Persist(sink raft.SnapshotSink) error {
+	if _, err := io.Copy(sink, s.reader); err != nil {
+		_ = sink.Cancel()
+		return err
+	}
+	return sink.Close()
+}
+
+func (s *snapshot) Release() {}
 
 var _ raft.LogStore = (*logStore)(nil)
 
