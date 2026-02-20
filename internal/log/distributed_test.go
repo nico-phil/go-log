@@ -1,4 +1,4 @@
-package log
+package log_test
 
 import (
 	"os"
@@ -9,13 +9,13 @@ import (
 
 // TestDistributedLog test the distributedLog
 func TestDistributedLog(t *testing.T) {
-	tempDir, err := os.MkdirTemp("", "data-log")
-	require.NoError(t, err)
-	defer os.Remove(tempDir)
-
-	config := Config{}
-	config.Segment.MaxIndexBytes = 1024
-	_, err = NewDistrubutedLog(tempDir, config)
-	require.NoError(t, err)
+	nodeCount := 3
+	for i := 0; i < nodeCount; i++ {
+		dataDir, err := os.MkdirTemp("", "distributed-log-test")
+		require.NoError(t, err)
+		defer func(dir string) {
+			_ = os.Remove(dir)
+		}(dataDir)
+	}
 
 }

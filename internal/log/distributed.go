@@ -278,12 +278,15 @@ func (l *fsm) applyAppend(b []byte) interface{} {
 	return &api.ProduceResponse{Offset: int64(offset)}
 }
 
+// FSMSnapshot inteface
 var _ raft.FSMSnapshot = (*snapshot)(nil)
 
+// snapshot implement raft.FSMSnapshot interface
 type snapshot struct {
 	reader io.Reader
 }
 
+// Persist, raft calls Persit on he FMSSnapshot to write its state
 func (s *snapshot) Persist(sink raft.SnapshotSink) error {
 	if _, err := io.Copy(sink, s.reader); err != nil {
 		_ = sink.Cancel()
@@ -294,12 +297,16 @@ func (s *snapshot) Persist(sink raft.SnapshotSink) error {
 
 func (s *snapshot) Release() {}
 
+// raft.LogStore interface
 var _ raft.LogStore = (*logStore)(nil)
 
+// logStore is where raft store its log.
+// logStore implement raft.LogStore inteface
 type logStore struct {
 	*Log
 }
 
+// newLogStore create a logStore
 func newLogStore(dir string, config Config) (*logStore, error) {
 	log, err := NewLog(dir, config)
 	if err != nil {
@@ -308,15 +315,18 @@ func newLogStore(dir string, config Config) (*logStore, error) {
 	return &logStore{Log: log}, nil
 }
 
+// FirstIndex returns first index in the log
 func (l *logStore) FirstIndex() (uint64, error) {
 	return l.LowestOffset()
 }
 
+// LastIndex returns the last index in the log
 func (l *logStore) LastIndex() (uint64, error) {
 	off, err := l.HighestOffset()
 	return off, err
 }
 
+// GetLog  gets a log entry at a given index.
 func (l *logStore) GetLog(index uint64, out *raft.Log) error {
 	in, err := l.Read(index)
 	if err != nil {
@@ -346,6 +356,7 @@ func (l *logStore) StoreLogs(records []*raft.Log) error {
 	return nil
 }
 
+// DeleteRange delete old records
 func (l *logStore) DeleteRange(min, max uint64) error {
 	return l.Truncate(max)
 }
