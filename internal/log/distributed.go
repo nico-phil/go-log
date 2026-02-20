@@ -41,6 +41,7 @@ func NewDistrubutedLog(dataDir string, config Config) (*DistributedLog, error) {
 	return l, nil
 }
 
+// setupLog creates the log server, where this server will store the user's records
 func (l *DistributedLog) setupLog(dataDir string) error {
 	logDir := path.Join(dataDir, "log")
 	if err := os.MkdirAll(logDir, 0755); err != nil {
@@ -145,7 +146,7 @@ func (l *DistributedLog) setupRaft(dataDir string) error {
 	return err
 }
 
-// Append appends a record to the log
+// Append appends a record to the log.We do not append the record directly, we tell raft to apply the command
 func (l *DistributedLog) Append(record *api.Record) (uint64, error) {
 	res, err := l.apply(
 		AppendRequestType,
