@@ -12,7 +12,7 @@ type Config struct {
 
 	Raft struct {
 		raft.Config
-		StreamLayer *raft.StreamLayer
+		StreamLayer raft.StreamLayer
 		Bootstrap   bool
 	}
 }

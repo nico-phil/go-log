@@ -363,7 +363,8 @@ func (l *logStore) DeleteRange(min, max uint64) error {
 
 var _ raft.StreamLayer = (*StreamLayer)(nil)
 
-// StreamLayer represent a streamlayer in our system. it should implement the raft.Streamlayer interface
+// StreamLayer represent a streamlayer in our system.
+// it should implement the raft.Streamlayer interface
 type StreamLayer struct {
 	ln              net.Listener
 	serverTLSConfig *tls.Config
@@ -408,7 +409,7 @@ func (s *StreamLayer) Dial(
 	return conn, err
 }
 
-// Accept implements the Accept() function of the raft.StreamLayer interface.
+// Accept implements the Accept() method of the raft.StreamLayer interface.
 // it accepts incomming connection and read the byte that identifies the connection
 // and create a server-side tls connection
 func (s *StreamLayer) Accept() (net.Conn, error) {
