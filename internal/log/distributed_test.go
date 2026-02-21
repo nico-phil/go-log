@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/raft"
+	api "github.com/nico-phil/go-log/api/v1"
 	"github.com/nico-phil/go-log/internal/log"
 	"github.com/stretchr/testify/require"
 	"github.com/travisjeffery/go-dynaport"
@@ -16,7 +17,6 @@ import (
 // TestDistributedLog test the distributedLog
 func TestDistributedLog(t *testing.T) {
 	var logs []*log.DistributedLog
-	dataDir := ""
 	nodeCount := 3
 	ports := dynaport.Get(nodeCount)
 	for i := 0; i < nodeCount; i++ {
@@ -53,6 +53,28 @@ func TestDistributedLog(t *testing.T) {
 		}
 
 		logs = append(logs, l)
+	}
+
+	records := []*api.Record{
+		{Value: []byte("first")},
+		{Value: []byte("second")},
+	}
+
+	for _, record := range records {
+		off, err := logs[0].Append(record)
+		require.NoError(t, err)
+
+		require.Eventually(t, func() bool {
+			for j := 0; j < nodeCount; j++ {
+				got, err := logs[j].Read(off)
+				require.NoError(t, err)
+
+				require.Equal(t, record.Value, got.Value)
+			}
+
+			return true
+		}, 500*time.Millisecond, 50*time.Millisecond)
+
 	}
 
 }
