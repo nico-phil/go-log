@@ -15,6 +15,7 @@ import (
 
 // TestDistributedLog test the distributedLog
 func TestDistributedLog(t *testing.T) {
+	var logs []*log.DistributedLog
 	dataDir := ""
 	nodeCount := 3
 	ports := dynaport.Get(nodeCount)
@@ -41,8 +42,17 @@ func TestDistributedLog(t *testing.T) {
 			config.Raft.Bootstrap = true
 		}
 
-		_, err = log.NewDistrubutedLog(dataDir, config)
+		l, err := log.NewDistrubutedLog(dataDir, config)
 		require.NoError(t, err)
+
+		if i != 0 {
+			err = logs[0].Join(fmt.Sprintf("%d", i), ln.Addr().String())
+			require.NoError(t, err)
+		} else {
+			err = l.WaitForLeader(3 * time.Second)
+		}
+
+		logs = append(logs, l)
 	}
 
 }
