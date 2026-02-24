@@ -14,6 +14,8 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+
+	"github.com/soheilhy/cmux"
 )
 
 // Agent contains All the differents components of system
@@ -27,6 +29,8 @@ type Agent struct {
 	shutdown     bool
 	shutdowns    chan struct{}
 	shutdownLock sync.Mutex
+
+	mux cmux.CMux
 }
 
 // Config contains configurations for all components
