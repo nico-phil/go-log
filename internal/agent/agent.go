@@ -80,6 +80,18 @@ func New(config Config) (*Agent, error) {
 	return a, nil
 }
 
+// setMux Creates a listener on our rpc address. it will accept both raft and grpc connection
+func (a *Agent) setMux() error {
+	rpcAddr := fmt.Sprintf(":%d", a.Config.RPCPort)
+	ln, err := net.Listen("tcp", rpcAddr)
+	if err != nil {
+		return err
+	}
+
+	a.mux = cmux.New(ln)
+	return nil
+}
+
 // setupLog sets up the WAL
 func (a *Agent) setupLog() error {
 	var err error
