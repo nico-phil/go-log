@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"reflect"
 	"testing"
 	"time"
 
@@ -67,11 +68,14 @@ func TestDistributedLog(t *testing.T) {
 		require.Eventually(t, func() bool {
 			for j := 0; j < nodeCount; j++ {
 				got, err := logs[j].Read(off)
-				require.NoError(t, err)
-
-				require.Equal(t, record.Value, got.Value)
+				if err != nil {
+					return false
+				}
+				record.Offset = off
+				if !reflect.DeepEqual(got.Value, record.Value) {
+					return false
+				}
 			}
-
 			return true
 		}, 500*time.Millisecond, 50*time.Millisecond)
 
