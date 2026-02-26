@@ -69,6 +69,7 @@ func New(config Config) (*Agent, error) {
 		a.setupLogger,
 		a.setupServer,
 		a.SetupMemberShip,
+		a.setMux,
 	}
 
 	for _, fn := range setup {
