@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io"
+	"log"
 	"net"
 	"os"
 	"path"
@@ -72,8 +73,9 @@ func (l *DistributedLog) setupRaft(dataDir string) error {
 	}
 
 	retain := 1
-	stableStore, err := raftboltdb.NewBoltStore(filepath.Join(dataDir, "raft"))
+	stableStore, err := raftboltdb.NewBoltStore(filepath.Join(dataDir, "raft", "stable"))
 	if err != nil {
+		log.Println("ERROR IS HERE", err)
 		return err
 	}
 
@@ -89,7 +91,7 @@ func (l *DistributedLog) setupRaft(dataDir string) error {
 	maxPool := 5
 	timeout := 10 * time.Second
 	transport := raft.NewNetworkTransport(
-		nil,
+		logConfig.Raft.StreamLayer,
 		maxPool,
 		timeout,
 		os.Stderr,
