@@ -65,7 +65,7 @@ func TestDistributedLog(t *testing.T) {
 		require.NoError(t, err)
 
 		fmt.Printf("AppendOffset:%d\n", off)
-		time.Sleep(time.Second)
+		time.Sleep(time.Millisecond * 50)
 
 		for i := 0; i < nodeCount; i++ {
 			got, err := logs[i].Read(off)
@@ -77,5 +77,25 @@ func TestDistributedLog(t *testing.T) {
 			require.Equal(t, record.Value, got.Value)
 		}
 	}
+
+	err := logs[0].Leave("1")
+	require.NoError(t, err)
+
+	time.Sleep(time.Millisecond * 50)
+
+	off, err := logs[0].Append(&api.Record{
+		Value: []byte("third"),
+	})
+	require.NoError(t, err)
+
+	time.Sleep(time.Millisecond * 50)
+
+	record, err := logs[1].Read(off)
+	require.IsType(t, api.ErrOffsetOutOfRange{}, err)
+	require.Nil(t, record)
+
+	record, err = logs[2].Read(off)
+	require.NoError(t, err)
+	require.Equal(t, []byte("third"), record.Value)
 
 }
