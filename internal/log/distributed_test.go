@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"reflect"
 	"testing"
 	"time"
 
@@ -65,20 +64,18 @@ func TestDistributedLog(t *testing.T) {
 		off, err := logs[0].Append(record)
 		require.NoError(t, err)
 
-		require.Eventually(t, func() bool {
-			for j := 0; j < nodeCount; j++ {
-				got, err := logs[j].Read(off)
-				if err != nil {
-					return false
-				}
-				record.Offset = off
-				if !reflect.DeepEqual(got.Value, record.Value) {
-					return false
-				}
-			}
-			return true
-		}, 500*time.Millisecond, 50*time.Millisecond)
+		fmt.Printf("AppendOffset:%d\n", off)
+		time.Sleep(time.Second)
 
+		for i := 0; i < nodeCount; i++ {
+			got, err := logs[i].Read(off)
+			require.NoError(t, err)
+			record.Offset = off
+
+			fmt.Printf("record: %v --- got: %v --- i=%d --- offset=%d\n", string(record.Value), string(got.Value), i, off)
+
+			require.Equal(t, record.Value, got.Value)
+		}
 	}
 
 }
