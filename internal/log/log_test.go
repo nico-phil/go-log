@@ -1,6 +1,7 @@
 package log
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
@@ -40,17 +41,24 @@ func TestLog(t *testing.T) {
 // testApendRead represents an helper function to test append and read
 func testAppendRead(t *testing.T, l *Log) {
 	// t.Helper()
-	rec := &api.Record{
-		Value: []byte("hello world"),
+
+	records := []*api.Record{
+		{Value: []byte("foo")},
+		{Value: []byte("bar")},
 	}
 
-	off, err := l.Append(rec)
-	require.NoError(t, err)
-	require.Equal(t, uint64(0), off)
+	for i, record := range records {
+		off, err := l.Append(record)
+		require.NoError(t, err)
+		require.Equal(t, uint64(i), off)
 
-	read, err := l.Read(off)
-	require.NoError(t, err)
-	require.Equal(t, rec.Value, read.Value)
+		fmt.Printf("off=%d\n", off)
+
+		read, err := l.Read(off)
+		require.NoError(t, err)
+		require.Equal(t, record.Value, read.Value)
+	}
+
 }
 
 // testOutOfRangeErr tests out of range secenario when the just created

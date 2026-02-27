@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io"
-	"log"
 	"net"
 	"os"
 	"path"
@@ -75,7 +74,6 @@ func (l *DistributedLog) setupRaft(dataDir string) error {
 	retain := 1
 	stableStore, err := raftboltdb.NewBoltStore(filepath.Join(dataDir, "raft", "stable"))
 	if err != nil {
-		log.Println("ERROR IS HERE", err)
 		return err
 	}
 
@@ -158,11 +156,11 @@ func (l *DistributedLog) Append(record *api.Record) (uint64, error) {
 		return 0, err
 	}
 
-	off, ok := res.(*api.ConsumeResponse)
+	off, ok := res.(*api.ProduceResponse)
 	if !ok {
 		return 0, err
 	}
-	return off.Record.Offset, nil
+	return uint64(off.Offset), nil
 
 }
 
@@ -189,7 +187,7 @@ func (l DistributedLog) apply(reqType RequestType, req proto.Message) (interface
 	}
 
 	res := future.Response()
-	if err, ok := res.(error); !ok {
+	if err, ok := res.(error); ok {
 		return nil, err
 	}
 	return res, nil
