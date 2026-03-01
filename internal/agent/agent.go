@@ -1,11 +1,14 @@
 package agent
 
 import (
+	"bytes"
 	"crypto/tls"
 	"fmt"
+	"io"
 	"net"
 	"sync"
 
+	"github.com/hashicorp/raft"
 	api "github.com/nico-phil/go-log/api/v1"
 	"github.com/nico-phil/go-log/internal/auth"
 	"github.com/nico-phil/go-log/internal/discovery"
@@ -21,10 +24,9 @@ import (
 // Agent contains All the differents components of system
 type Agent struct {
 	Config
-	log        *log.Log
+	log        *log.DistributedLog
 	server     *grpc.Server
 	membership *discovery.Membership
-	replicator *log.Replicator
 
 	shutdown     bool
 	shutdowns    chan struct{}
@@ -44,6 +46,7 @@ type Config struct {
 	StartJoinAddr   []string
 	ACLModelFile    string
 	ACLPolicyFile   string
+	Bootstrap       bool
 }
 
 // RPCAddr splits a network address of the form "host:port
@@ -95,13 +98,41 @@ func (a *Agent) setMux() error {
 
 // setupLog sets up the WAL
 func (a *Agent) setupLog() error {
-	var err error
-	a.log, err = log.NewLog(
-		a.Config.Datadir,
-		log.Config{},
+
+	raftLn := a.mux.Match(func(r io.Reader) bool {
+		b := make([]byte, 1)
+		if _, err := r.Read(b); err != nil {
+			return false
+		}
+
+		return bytes.Compare(b, []byte{byte(log.RaftRPC)}) == 0
+
+	})
+
+	logConfig := log.Config{}
+
+	logConfig.Raft.StreamLayer = log.NewStreamLayer(
+		raftLn,
+		a.ServerTlsConfig,
+		a.PeerTlsConfig,
 	)
 
-	return err
+	logConfig.Raft.LocalID = raft.ServerID(a.Config.NodeName)
+	logConfig.Raft.Bootstrap = a.Config.Bootstrap
+
+	var err error
+	a.log, err = log.NewDistrubutedLog(a.Datadir, logConfig)
+	if err != nil {
+		return err
+	}
+
+	// var err error
+	// a.log, err = log.NewLog(
+	// 	a.Config.Datadir,
+	// 	log.Config{},
+	// )
+
+	// return err
 }
 
 // setupLogger sets up the logger agent
@@ -179,19 +210,19 @@ func (a *Agent) SetupMemberShip() error {
 	}
 
 	client := api.NewLogClient(conn)
-	a.replicator = &log.Replicator{
-		DialOptions: opts,
-		LocalServer: client,
-	}
+	// a.replicator = &log.Replicator{
+	// 	DialOptions: opts,
+	// 	LocalServer: client,
+	// }
 
-	a.membership, err = discovery.New(a.replicator, discovery.Config{
-		NodeName: a.Config.NodeName,
-		BindAddr: a.Config.BindAddr,
-		Tags: map[string]string{
-			"rpc_addr": rpcAddr,
-		},
-		StartJoinAddrs: a.Config.StartJoinAddr,
-	})
+	// a.membership, err = discovery.New(a.replicator, discovery.Config{
+	// 	NodeName: a.Config.NodeName,
+	// 	BindAddr: a.Config.BindAddr,
+	// 	Tags: map[string]string{
+	// 		"rpc_addr": rpcAddr,
+	// 	},
+	// 	StartJoinAddrs: a.Config.StartJoinAddr,
+	// })
 
 	return err
 }
@@ -208,7 +239,7 @@ func (a *Agent) Shutdown() error {
 
 	shutdown := []func() error{
 		a.membership.Leave,
-		a.replicator.Close,
+		// a.replicator.Close,
 		func() error {
 			a.server.GracefulStop()
 			return nil
