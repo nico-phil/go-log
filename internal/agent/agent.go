@@ -7,6 +7,7 @@ import (
 	"io"
 	"net"
 	"sync"
+	"time"
 
 	"github.com/hashicorp/raft"
 	api "github.com/nico-phil/go-log/api/v1"
@@ -126,13 +127,11 @@ func (a *Agent) setupLog() error {
 		return err
 	}
 
-	// var err error
-	// a.log, err = log.NewLog(
-	// 	a.Config.Datadir,
-	// 	log.Config{},
-	// )
+	if a.Config.Bootstrap {
+		err = a.log.WaitForLeader(time.Second * 3)
+	}
 
-	// return err
+	return err
 }
 
 // setupLogger sets up the logger agent
