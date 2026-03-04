@@ -31,7 +31,7 @@ const (
 
 // Config contents the commit log package
 type Config struct {
-	CommitLog  *llog.Log
+	CommitLog  *llog.DistributedLog
 	Authorizer Authorizer
 }
 
