@@ -104,6 +104,16 @@ func TestAgent(t *testing.T) {
 
 	require.Equal(t, consumeReponse.Record.Value, want)
 
+	consumeReponse, err = leaderClient.Consume(
+		context.Background(),
+		&api.ConsumeRequest{
+			Offset: produceReponse.Offset + 1,
+		},
+	)
+
+	require.Nil(t, consumeReponse)
+	require.Error(t, err)
+
 }
 
 // client creates new client for testing purpose
