@@ -67,7 +67,7 @@ func SetupTest(t *testing.T) (rootClient api.LogClient, nobodyClient api.LogClie
 	logConfig := llog.Config{}
 	logConfig.Segment.MaxIndexBytes = 1024
 	logConfig.Segment.MaxStoreBytes = 1024
-	commitLog, err := llog.NewLog(dir, logConfig)
+	commitLog, err := llog.NewDistrubutedLog(dir, logConfig)
 	require.NoError(t, err)
 
 	lis, err := net.Listen("tcp", "127.0.0.1:0")
@@ -152,7 +152,7 @@ func SetupTest(t *testing.T) (rootClient api.LogClient, nobodyClient api.LogClie
 		grpcServer.Stop()
 		rootConn.Close()
 		nobodyConn.Close()
-		commitLog.Remove()
+		commitLog.Close()
 
 		if telemetryExporter != nil {
 			time.Sleep(1500 * time.Millisecond)
