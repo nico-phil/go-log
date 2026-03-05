@@ -59,6 +59,7 @@ func TestAgent(t *testing.T) {
 			StartJoinAddr:   startJoinAddrs,
 			ACLModelFile:    config.ACLModelFile,
 			ACLPolicyFile:   config.ACLPolicyFile,
+			Bootstrap:       i == 0,
 		}
 
 		ag, err := New(config)
