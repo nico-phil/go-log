@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/raft"
-	api "github.com/nico-phil/go-log/api/v1"
 	"github.com/nico-phil/go-log/internal/auth"
 	"github.com/nico-phil/go-log/internal/discovery"
 	"github.com/nico-phil/go-log/internal/log"
@@ -69,11 +68,11 @@ func New(config Config) (*Agent, error) {
 	}
 
 	setup := []func() error{
-		a.setupLog,
 		a.setupLogger,
+		a.setMux,
+		a.setupLog,
 		a.setupServer,
 		a.SetupMemberShip,
-		a.setMux,
 	}
 
 	for _, fn := range setup {
@@ -85,7 +84,7 @@ func New(config Config) (*Agent, error) {
 	return a, nil
 }
 
-// setMux Creates a listener on our rpc address. it will accept both raft and grpc connection
+// setMux Creates a listener on the rpc address. it will accept both raft and grpc connection
 func (a *Agent) setMux() error {
 	rpcAddr := fmt.Sprintf(":%d", a.Config.RPCPort)
 	ln, err := net.Listen("tcp", rpcAddr)
@@ -97,7 +96,7 @@ func (a *Agent) setMux() error {
 	return nil
 }
 
-// setupLog sets up the WAL
+// setupLog sets up the distributed log
 func (a *Agent) setupLog() error {
 
 	raftLn := a.mux.Match(func(r io.Reader) bool {
@@ -170,16 +169,6 @@ func (a *Agent) setupServer() error {
 		return err
 	}
 
-	// rpcAddr, err := a.RPCAddr()
-	// if err != nil {
-	// 	return err
-	// }
-
-	// ln, err := net.Listen("tcp", rpcAddr)
-	// if err != nil {
-	// 	return err
-	// }
-
 	grpcLn := a.mux.Match(cmux.Any())
 
 	go func() {
@@ -199,31 +188,15 @@ func (a *Agent) SetupMemberShip() error {
 	if err != nil {
 		return err
 	}
-	var opts []grpc.DialOption
-	if a.Config.PeerTlsConfig != nil {
-		opts = append(opts, grpc.WithTransportCredentials(
-			credentials.NewTLS(a.Config.PeerTlsConfig),
-		))
-	}
-	conn, err := grpc.NewClient(rpcAddr, opts...)
-	if err != nil {
-		return err
-	}
 
-	client := api.NewLogClient(conn)
-	// a.replicator = &log.Replicator{
-	// 	DialOptions: opts,
-	// 	LocalServer: client,
-	// }
-
-	// a.membership, err = discovery.New(a.replicator, discovery.Config{
-	// 	NodeName: a.Config.NodeName,
-	// 	BindAddr: a.Config.BindAddr,
-	// 	Tags: map[string]string{
-	// 		"rpc_addr": rpcAddr,
-	// 	},
-	// 	StartJoinAddrs: a.Config.StartJoinAddr,
-	// })
+	a.membership, err = discovery.New(a.log, discovery.Config{
+		NodeName: a.Config.NodeName,
+		BindAddr: a.Config.BindAddr,
+		Tags: map[string]string{
+			"rpc_addr": rpcAddr,
+		},
+		StartJoinAddrs: a.Config.StartJoinAddr,
+	})
 
 	return err
 }
