@@ -65,6 +65,7 @@ func SetupTest(t *testing.T) (rootClient api.LogClient, nobodyClient api.LogClie
 	require.NoError(t, err)
 
 	logConfig := llog.Config{}
+	logConfig.Raft.Bootstrap = true
 	logConfig.Segment.MaxIndexBytes = 1024
 	logConfig.Segment.MaxStoreBytes = 1024
 	commitLog, err := llog.NewDistrubutedLog(dir, logConfig)
