@@ -21,6 +21,8 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// Record represents the actual data we want to store.
+// we also add the term and type field for raft
 type Record struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Value         []byte                 `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
@@ -89,6 +91,7 @@ func (x *Record) GetType() uint32 {
 	return 0
 }
 
+// ProduceRequest represents a request to add a record
 type ProduceRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Record        *Record                `protobuf:"bytes,1,opt,name=record,proto3" json:"record,omitempty"`
@@ -133,6 +136,7 @@ func (x *ProduceRequest) GetRecord() *Record {
 	return nil
 }
 
+// ProduceResponse repersents the response after adding a record
 type ProduceResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Offset        int64                  `protobuf:"varint,1,opt,name=offset,proto3" json:"offset,omitempty"`
@@ -177,6 +181,7 @@ func (x *ProduceResponse) GetOffset() int64 {
 	return 0
 }
 
+// ConsumeRequest represents a query to read a record
 type ConsumeRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Offset        int64                  `protobuf:"varint,1,opt,name=offset,proto3" json:"offset,omitempty"`
@@ -221,6 +226,7 @@ func (x *ConsumeRequest) GetOffset() int64 {
 	return 0
 }
 
+// ConsumeResponse represents the reponse getting when after ConsumeRequest
 type ConsumeResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Record        *Record                `protobuf:"bytes,1,opt,name=record,proto3" json:"record,omitempty"`
@@ -265,6 +271,7 @@ func (x *ConsumeResponse) GetRecord() *Record {
 	return nil
 }
 
+// GetServersRequest represents a request to obten the servers in the cluster
 type GetServersRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -301,6 +308,7 @@ func (*GetServersRequest) Descriptor() ([]byte, []int) {
 	return file_api_v1_log_proto_rawDescGZIP(), []int{5}
 }
 
+// GetServersResponse represents the result when issuing a GetServersRequest
 type GetServersResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Servers       []*Server              `protobuf:"bytes,1,rep,name=servers,proto3" json:"servers,omitempty"`
@@ -345,6 +353,7 @@ func (x *GetServersResponse) GetServers() []*Server {
 	return nil
 }
 
+// Server represents a single server in the cluster
 type Server struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
