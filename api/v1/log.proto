@@ -4,6 +4,8 @@ package log.v1;
 
 option go_package ="github.com/nico-phil/api/log_v1";
 
+// Record represents the actual data we want to store. 
+// we also add the term and type field for raft
 message Record {
     bytes value = 1;
     uint64 offset = 2;
@@ -11,38 +13,55 @@ message Record {
     uint32 type = 4;
 }
 
+// ProduceRequest represents a request to add a record 
 message ProduceRequest {
     Record record = 1;
 }
 
+// ProduceResponse repersents the response after adding a record
 message ProduceResponse{
     int64 offset = 1;
 }
 
+// ConsumeRequest represents a query to read a record
 message ConsumeRequest {
     int64 offset = 1;
 }
 
+// ConsumeResponse represents the reponse getting when after ConsumeRequest
 message ConsumeResponse {
     Record record = 1;
 }
 
+// GetServersRequest represents a request to obten the servers in the cluster
 message GetServersRequest {}
 
+// GetServersResponse represents the result when issuing a GetServersRequest
 message GetServersResponse {
     repeated Server servers = 1;
 }
 
+// Server represents a single server in the cluster
 message Server {
     string id = 1;
     string rpc_addr = 2;
     bool is_leader = 3;
 }
 
+// Log contains rpc requests exposed by the program
 service Log {
+    // Produce
     rpc Produce(ProduceRequest) returns (ProduceResponse){}
+    
+    // Consume
     rpc Consume(ConsumeRequest) returns (ConsumeResponse){}
+    
+    // Consume stream
     rpc ConsumeStream(ConsumeRequest) returns(stream ConsumeResponse){}
+    
+    // Produce stream
     rpc ProduceStream(stream ProduceRequest) returns (stream ProduceResponse){}
+    
+    // Get servers
     rpc GetServers(GetServersRequest) returns (GetServersResponse){}
 }
