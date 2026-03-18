@@ -29,11 +29,18 @@ const (
 // LogClient is the client API for Log service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// Log contains rpc requests exposed by the program
 type LogClient interface {
+	// Produce
 	Produce(ctx context.Context, in *ProduceRequest, opts ...grpc.CallOption) (*ProduceResponse, error)
+	// Consume
 	Consume(ctx context.Context, in *ConsumeRequest, opts ...grpc.CallOption) (*ConsumeResponse, error)
+	// Consume stream
 	ConsumeStream(ctx context.Context, in *ConsumeRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ConsumeResponse], error)
+	// Produce stream
 	ProduceStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ProduceRequest, ProduceResponse], error)
+	// Get servers
 	GetServers(ctx context.Context, in *GetServersRequest, opts ...grpc.CallOption) (*GetServersResponse, error)
 }
 
@@ -110,11 +117,18 @@ func (c *logClient) GetServers(ctx context.Context, in *GetServersRequest, opts 
 // LogServer is the server API for Log service.
 // All implementations must embed UnimplementedLogServer
 // for forward compatibility.
+//
+// Log contains rpc requests exposed by the program
 type LogServer interface {
+	// Produce
 	Produce(context.Context, *ProduceRequest) (*ProduceResponse, error)
+	// Consume
 	Consume(context.Context, *ConsumeRequest) (*ConsumeResponse, error)
+	// Consume stream
 	ConsumeStream(*ConsumeRequest, grpc.ServerStreamingServer[ConsumeResponse]) error
+	// Produce stream
 	ProduceStream(grpc.BidiStreamingServer[ProduceRequest, ProduceResponse]) error
+	// Get servers
 	GetServers(context.Context, *GetServersRequest) (*GetServersResponse, error)
 	mustEmbedUnimplementedLogServer()
 }
