@@ -71,3 +71,13 @@ func (s *grpcServer) ConsumeStream(req *api.ConsumeRequest, stream api.Log_Consu
 		}
 	}
 }
+
+// GetServers return all servers in the cluster
+func (s *grpcServer) GetServers(req *api.GetServersRequest) (*api.GetServersResponse, error) {
+	servers, err := s.CommitLog.GetServers()
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.GetServersResponse{Servers: servers}, nil
+}
