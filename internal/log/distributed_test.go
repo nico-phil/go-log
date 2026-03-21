@@ -78,8 +78,23 @@ func TestDistributedLog(t *testing.T) {
 		}
 	}
 
-	err := logs[0].Leave("1")
+	servers, err := logs[0].GetServers()
 	require.NoError(t, err)
+
+	require.Equal(t, 3, len(servers))
+	require.True(t, servers[0].IsLeader)
+	require.False(t, servers[1].IsLeader)
+	require.False(t, servers[2].IsLeader)
+
+	err = logs[0].Leave("1")
+	require.NoError(t, err)
+
+	servers, err = logs[0].GetServers()
+	require.NoError(t, err)
+
+	require.Equal(t, 2, len(servers))
+	require.True(t, servers[0].IsLeader)
+	require.False(t, servers[1].IsLeader)
 
 	time.Sleep(time.Millisecond * 50)
 
