@@ -31,14 +31,19 @@ const (
 
 // Config contents the commit log package
 type Config struct {
-	CommitLog  *llog.DistributedLog
-	Authorizer Authorizer
+	CommitLog   *llog.DistributedLog
+	Authorizer  Authorizer
+	GetServerer GetServerer
 }
 
 // CommitLog represents the interface of the log
 type CommitLog interface {
 	Append(*api.Record) (uint64, error)
 	Read(uint64) (*api.Record, error)
+}
+
+type GetServerer interface {
+	GetServers() ([]*api.Server, error)
 }
 
 type Authorizer interface {
