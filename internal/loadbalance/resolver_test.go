@@ -75,5 +75,3 @@ func (s *getServers) GetServers() ([]*api.Server, error) {
 		},
 	}, nil
 }
-
-type clientConn struct{}
