@@ -117,3 +117,5 @@ func (s *clientConn) NewAddress()
 func (s *clientConn) NewServiceConfig()
 
 func (s *clientConn) UpdateState() {}
+
+func (s *clientConn) ParseServiceConfig(config string) {}
