@@ -1,6 +1,7 @@
 package loadbalance
 
 import (
+	"debug/buildinfo"
 	"sync"
 
 	"google.golang.org/grpc/balancer"
@@ -19,6 +20,24 @@ func New() *Picker {
 	return nil
 }
 
-func (p *Picker) Build(info base.PickerBuildInfo) balancer.Picker {
-	return nil
+func (p *Picker) Build(buildInfo base.PickerBuildInfo) balancer.Picker {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	var followers []balancer.SubConn
+
+	for sc, scInfo := range buildInfo.ReadySCs {
+		isLeader := scInfo.Address.Attributes.Value("is_leader").(bool) {
+
+		}
+
+		if isLeader = p.leader {
+			p.leader = sc
+		}
+
+		followers = append(followers, sc)
+	}
+
+	 p.followers = followers
+	return p
 }
