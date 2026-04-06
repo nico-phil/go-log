@@ -41,3 +41,10 @@ func (p *Picker) Build(buildInfo base.PickerBuildInfo) balancer.Picker {
 	 p.followers = followers
 	return p
 }
+
+
+var _ balancer.Picker = Picker(nil)
+
+func(p *Picker) Pick(info balancer.PickInfo) (Pick balancer.PickResult, error){
+	return 	nil, nil
+}
