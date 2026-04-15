@@ -15,6 +15,7 @@ import (
 
 var Name = "proglog"
 
+// Resolver implement resolver.Builder and reolver.Resolver interface
 type Resolver struct {
 	mu            sync.Mutex
 	clientConn    resolver.ClientConn
@@ -23,8 +24,10 @@ type Resolver struct {
 	logger        *zap.Logger
 }
 
+// for compile-time check
 var _ resolver.Builder = (*Resolver)(nil)
 
+// Build sets up a client connecton to our server, so the resolver can call the Getservers API
 func (r *Resolver) Build(
 	target resolver.Target,
 	cc resolver.ClientConn,
@@ -54,16 +57,21 @@ func (r *Resolver) Build(
 	return nil, err
 }
 
+// Scheme return the resolver's scheme identifer like this: proglog://address:port
 func (r *Resolver) Scheme() string {
 	return Name
 }
 
+// register the resolver
 func init() {
 	resolver.Register(&Resolver{})
 }
 
+// Resolver should implment resolver.Resolver interface. I'ts a compile-time checking
 var _ resolver.Resolver = (*Resolver)(nil)
 
+// ResolveNow will be called by gRPC to try to resolve the target name,
+// discover the servers and update the client connection with servers
 func (r *Resolver) ResolveNow(resolver.ResolveNowOptions) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -99,10 +107,11 @@ func (r *Resolver) ResolveNow(resolver.ResolveNowOptions) {
 	})
 }
 
+// Close closes the resolver.
 func (r *Resolver) Close() {
 	if err := r.resolverConn.Close(); err != nil {
 		r.logger.Error(
-			"filed to close connection",
+			"failed to close connection",
 			zap.Error(err),
 		)
 	}
