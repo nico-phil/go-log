@@ -1,0 +1,1 @@
+A distributed commit log build in Go, similar to Kafka’s core abstraction. The system stores records in an immutable ordered log, replicates them across nodes for fault tolerance, and exposes offset-based reads so consumers can replay data reliably.
