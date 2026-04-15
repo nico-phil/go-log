@@ -22,7 +22,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-var debug = flag.Bool("debug", false, "Enable observability for eebugging")
+var debug = flag.Bool("debug", false, "Enable observability for debugging")
 
 // TestMain setup logger for when debug true
 func TestMain(m *testing.M) {
