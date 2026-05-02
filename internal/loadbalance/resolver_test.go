@@ -13,6 +13,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/resolver"
+	"google.golang.org/grpc/serviceconfig"
 )
 
 func TestResolver(t *testing.T) {
@@ -50,14 +51,16 @@ func TestResolver(t *testing.T) {
 
 	clientCreds := credentials.NewTLS(tlsConfig)
 
-	_ = resolver.BuildOptions{
+	opts := resolver.BuildOptions{
 		DialCreds: clientCreds,
 	}
 
-	r := loadbalance.Resolver{}
-	_, err = r.Build(resolver.Target{
-		URL: url.URL{Host: l.Addr().String()},
-	}, conn, resolver.BuildOptions{})
+	r := &loadbalance.Resolver{}
+	_, err = r.Build(
+		resolver.Target{URL: url.URL{}},
+		&conn,
+		opts,
+	)
 }
 
 type getServers struct{}
@@ -74,4 +77,23 @@ func (s *getServers) GetServers() ([]*api.Server, error) {
 			RpcAddr: "localhost:9002",
 		},
 	}, nil
+}
+
+type clientConn struct {
+	resolver.ClientConn
+	state resolver.State
+}
+
+func (c *clientConn) UpdateState(state resolver.State) error {
+	c.state = state
+	return nil
+}
+
+func (c *clientConn) ReportError(err error) {}
+
+func (c *clientConn) NewAddress(addresses []resolver.Address) {}
+
+func (c *clientConn) ParseServiceConfig(config string) *serviceconfig.ParseResult {
+	return nil
+
 }

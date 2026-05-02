@@ -15,7 +15,7 @@ import (
 
 var Name = "proglog"
 
-// Resolver implement resolver.Builder and reolver.Resolver interface
+// Resolver implement resolver.Builder and reolver.Resolver interface from grpc
 type Resolver struct {
 	mu            sync.Mutex
 	clientConn    resolver.ClientConn
