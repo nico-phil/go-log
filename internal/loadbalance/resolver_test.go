@@ -40,7 +40,7 @@ func TestResolver(t *testing.T) {
 	conn := clientConn{}
 
 	tlsConfig, err = config.SetupTLSConfig(config.TLSConfig{
-		CertFile:      config.ServerCertFile,
+		CertFile:      config.ClientCertFile,
 		KeyFile:       config.ClientKeyFile,
 		CAFile:        config.CAFile,
 		Server:        false,
@@ -56,8 +56,12 @@ func TestResolver(t *testing.T) {
 	}
 
 	r := &loadbalance.Resolver{}
+
+	targetUrl, err := url.Parse(l.Addr().Network())
+	require.NoError(t, err)
+
 	_, err = r.Build(
-		resolver.Target{URL: url.URL{}},
+		resolver.Target{URL: *targetUrl},
 		&conn,
 		opts,
 	)
