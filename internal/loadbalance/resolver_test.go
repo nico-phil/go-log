@@ -40,7 +40,7 @@ func TestResolver(t *testing.T) {
 	conn := clientConn{}
 
 	tlsConfig, err = config.SetupTLSConfig(config.TLSConfig{
-		CertFile:      config.ServerCertFile,
+		CertFile:      config.ClientCertFile,
 		KeyFile:       config.ClientKeyFile,
 		CAFile:        config.CAFile,
 		Server:        false,

@@ -119,11 +119,11 @@ func (r *Resolver) Close() {
 
 type clientConn struct{}
 
-func (s *clientConn) Report()
+func (s *clientConn) Report() {}
 
-func (s *clientConn) NewAddress()
+func (s *clientConn) NewAddress() {}
 
-func (s *clientConn) NewServiceConfig()
+func (s *clientConn) NewServiceConfig() {}
 
 func (s *clientConn) UpdateState() {}
 

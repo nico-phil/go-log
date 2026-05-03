@@ -1,13 +1,5 @@
 package loadbalance
 
-import (
-	"debug/buildinfo"
-	"sync"
-
-	"google.golang.org/grpc/balancer"
-	"google.golang.org/grpc/balancer/base"
-)
-
 var _ base.PickerBuilder = (*Picker)(nil)
 
 type Picker struct {
@@ -41,7 +33,6 @@ func (p *Picker) Build(buildInfo base.PickerBuildInfo) balancer.Picker {
 	 p.followers = followers
 	return p
 }
-
 
 var _ balancer.Picker = Picker(nil)
 
