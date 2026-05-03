@@ -56,8 +56,12 @@ func TestResolver(t *testing.T) {
 	}
 
 	r := &loadbalance.Resolver{}
+
+	targetUrl, err := url.Parse(l.Addr().Network())
+	require.NoError(t, err)
+
 	_, err = r.Build(
-		resolver.Target{URL: url.URL{}},
+		resolver.Target{URL: *targetUrl},
 		&conn,
 		opts,
 	)
