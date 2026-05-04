@@ -53,7 +53,7 @@ func (p *Picker) Pick(info balancer.PickInfo) (balancer.PickResult, error) {
 	}
 
 	if result.SubConn == nil {
-		return result, nil
+		return result, balancer.ErrNoSubConnAvailable
 	}
 
 	return result, nil
