@@ -4,6 +4,9 @@
 #requested, regardless of whether a file with that name exists in the directory. 
 
 CONFIG_PATH = ${HOME}/.proglog/
+TEST_FUNC_NAME = TestPickerNoSubConnAvailable
+TEST_FILENAME = picker_test.go
+TEST_FOLDER_NAME = loadbalance
 
 .PHONY: run	
 run:
@@ -16,6 +19,11 @@ build:
 .PHONY: test	
 test:	
 	go test -v ./...  -debug=true 
+
+.PHONY: test-single-func
+test-single-func:	
+	go test -v -run ^${FUNC_NAME} internal/${TEST_FOLDER_NAME}/${TEST_FILENAME}
+ 
 
 .PHONY: tidy
 tidy:

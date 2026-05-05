@@ -3,6 +3,7 @@ package loadbalance
 import (
 	"context"
 	"fmt"
+	"log"
 	"sync"
 
 	api "github.com/nico-phil/go-log/api/v1"
@@ -46,6 +47,8 @@ func (r *Resolver) Build(
 	r.serviceConfig = r.clientConn.ParseServiceConfig(
 		fmt.Sprintf(`{"loadBalancingConfig:[{"%s:{}}]}`, Name),
 	)
+
+	log.Printf("loadbalancer-config: %+v", r.serviceConfig)
 
 	var err error
 	r.resolverConn, err = grpc.NewClient(target.Endpoint(), dialOpts...)
