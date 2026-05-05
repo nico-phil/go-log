@@ -25,3 +25,22 @@ func TestPickerNoSubConnAvailable(t *testing.T) {
 		require.Nil(t, result.SubConn)
 	}
 }
+
+func TestPickerProduceToLeader(t *testing.T) {
+	picker, subConns := setupTest()
+
+	info := balancer.PickInfo{
+		FullMethodName: "/log.vX.Log/Produce",
+	}
+
+	for i := 0; i < 5; i++ {
+		gotPick, err := picker.Pick(info)
+		require.NoError(t, err)
+		require.Equal(t, subConns[0], gotPick.SubConn)
+	}
+
+}
+
+func setupTest() (*loadbalance.Picker, []*balancer.SubConn) {
+	return nil, nil
+}
