@@ -2,6 +2,7 @@ package proglog
 
 import (
 	"log"
+	"os"
 
 	"github.com/nico-phil/go-log/internal/agent"
 	"github.com/nico-phil/go-log/internal/config"
@@ -30,4 +31,19 @@ func main() {
 	if err := cmd.Execute(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func run(c *cli) error {
+	return nil
+}
+
+func setupFlags(cmd *cobra.Command) error {
+	_, err := os.Hostname()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	cmd.Flags().String("config-file", "", "Path to config file.")
+
+	return nil
 }
