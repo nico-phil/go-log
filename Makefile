@@ -7,6 +7,7 @@ CONFIG_PATH = ${HOME}/.proglog/
 TEST_FUNC_NAME = TestPickerNoSubConnAvailable
 TEST_FILENAME = picker_test.go
 TEST_FOLDER_NAME = loadbalance
+TAG ?= 0.0.1
 
 .PHONY: run	
 run:
@@ -103,5 +104,6 @@ grpc-consume:
 
 
 
-
-
+.PHONY: build-docker
+build-docker:
+	docker build -t github.com/nico-phil/proglog:$(TAG) .
