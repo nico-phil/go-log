@@ -16,6 +16,7 @@ import (
 	"google.golang.org/grpc/serviceconfig"
 )
 
+// TestResolver setup and test the resolver. it use mock getServers to discover info about the server
 func TestResolver(t *testing.T) {
 	l, err := net.Listen("tcp", "127.0.0.1:0")
 	require.NoError(t, err)
@@ -65,8 +66,10 @@ func TestResolver(t *testing.T) {
 		&conn,
 		opts,
 	)
+	require.NoError(t, err)
 }
 
+// mock server
 type getServers struct{}
 
 func (s *getServers) GetServers() ([]*api.Server, error) {
@@ -77,8 +80,13 @@ func (s *getServers) GetServers() ([]*api.Server, error) {
 			IsLeader: true,
 		},
 		{
-			Id:      "follower",
+			Id:      "follower_1",
 			RpcAddr: "localhost:9002",
+		},
+
+		{
+			Id:      "follower_2",
+			RpcAddr: "localhost:9003",
 		},
 	}, nil
 }
