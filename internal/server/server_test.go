@@ -22,7 +22,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-var debug = flag.Bool("debug", false, "Enable observability for debugging")
+var debug = flag.Bool("debug", true, "Enable observability for debugging")
 
 // TestMain setup logger for when debug true
 func TestMain(m *testing.M) {
@@ -68,7 +68,7 @@ func SetupTest(t *testing.T) (rootClient api.LogClient, nobodyClient api.LogClie
 	logConfig.Raft.Bootstrap = true
 	logConfig.Segment.MaxIndexBytes = 1024
 	logConfig.Segment.MaxStoreBytes = 1024
-	commitLog, err := llog.NewDistrubutedLog(dir, logConfig)
+
 	require.NoError(t, err)
 
 	lis, err := net.Listen("tcp", "127.0.0.1:0")
@@ -76,10 +76,10 @@ func SetupTest(t *testing.T) (rootClient api.LogClient, nobodyClient api.LogClie
 
 	newClient := func(crtFile, keyFile string) (*grpc.ClientConn, api.LogClient, []grpc.DialOption) {
 		tlsConfig, err := config.SetupTLSConfig(config.TLSConfig{
-			CertFile:      crtFile,
-			KeyFile:       keyFile,
-			CAFile:        config.CAFile,
-			ServerAddress: lis.Addr().String(),
+			CertFile: crtFile,
+			KeyFile:  keyFile,
+			CAFile:   config.CAFile,
+			Server:   false,
 		})
 		require.NoError(t, err)
 
@@ -105,14 +105,16 @@ func SetupTest(t *testing.T) (rootClient api.LogClient, nobodyClient api.LogClie
 	)
 
 	serverTlsConfig, err := config.SetupTLSConfig(config.TLSConfig{
-		CertFile:      config.ServerCertFile,
-		KeyFile:       config.ServerKeyFile,
-		CAFile:        config.CAFile,
-		ServerAddress: lis.Addr().String(),
-		Server:        true,
+		CertFile: config.ServerCertFile,
+		KeyFile:  config.ServerKeyFile,
+		CAFile:   config.CAFile,
+		// ServerAddress: lis.Addr().String(),
+		Server: true,
 	})
 
 	require.NoError(t, err)
+
+	commitLog, err := llog.NewLog(dir, logConfig)
 
 	serverCreds := credentials.NewTLS(serverTlsConfig)
 	authorizer := auth.New(config.ACLModelFile, config.ACLPolicyFile)

@@ -50,7 +50,7 @@ func (r *Resolver) Build(
 	}
 
 	r.serviceConfig = r.clientConn.ParseServiceConfig(
-		fmt.Sprintf(`{"loadBalancingConfig:[{"%s:{}}]}`, Name),
+		fmt.Sprintf(`{"loadBalancingConfig":[{"%s":{}}]}`, Name),
 	)
 
 	log.Printf("loadbalancer-config: %+v", r.serviceConfig)

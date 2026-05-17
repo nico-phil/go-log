@@ -19,6 +19,7 @@ func TestDistributedLog(t *testing.T) {
 	var logs []*log.DistributedLog
 	nodeCount := 3
 	ports := dynaport.Get(nodeCount)
+	fmt.Printf("PORTS:%+v\n", ports)
 	for i := 0; i < nodeCount; i++ {
 		dataDir, err := os.MkdirTemp("", "distributed-log-test")
 		require.NoError(t, err)
@@ -37,6 +38,7 @@ func TestDistributedLog(t *testing.T) {
 		config.Raft.ElectionTimeout = 50 * time.Millisecond
 		config.Raft.LeaderLeaseTimeout = 50 * time.Millisecond
 		config.Raft.CommitTimeout = 5 * time.Millisecond
+		config.Raft.BindAddr = ln.Addr().String()
 
 		if i == 0 {
 			config.Raft.Bootstrap = true
@@ -45,11 +47,14 @@ func TestDistributedLog(t *testing.T) {
 		l, err := log.NewDistrubutedLog(dataDir, config)
 		require.NoError(t, err)
 
+		fmt.Printf("NewDistrubutedLog:%+v\n", l)
+
 		if i != 0 {
 			err = logs[0].Join(fmt.Sprintf("%d", i), ln.Addr().String())
 			require.NoError(t, err)
 		} else {
 			err = l.WaitForLeader(3 * time.Second)
+			require.NoError(t, err)
 		}
 
 		logs = append(logs, l)

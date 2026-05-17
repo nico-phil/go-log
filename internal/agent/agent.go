@@ -88,7 +88,12 @@ func New(config Config) (*Agent, error) {
 
 // setMux Creates a listener on the rpc address. it will accept both raft and grpc connection
 func (a *Agent) setMux() error {
-	rpcAddr := fmt.Sprintf(":%d", a.Config.RPCPort)
+	addr, err := net.ResolveTCPAddr("tcp", a.Config.BindAddr)
+	if err != nil {
+		return err
+	}
+	rpcAddr := fmt.Sprintf("%s:%d", addr.IP.String(), a.Config.RPCPort)
+
 	ln, err := net.Listen("tcp", rpcAddr)
 	if err != nil {
 		return err
@@ -115,15 +120,19 @@ func (a *Agent) setupLog() error {
 
 	logConfig.Raft.StreamLayer = log.NewStreamLayer(
 		raftLn,
-		a.ServerTlsConfig,
-		a.PeerTlsConfig,
+		a.Config.ServerTlsConfig,
+		a.Config.PeerTlsConfig,
 	)
 
+	rpcAddr, err := a.Config.RPCAddr()
+	if err != nil {
+		return err
+	}
+	logConfig.Raft.BindAddr = rpcAddr
 	logConfig.Raft.LocalID = raft.ServerID(a.Config.NodeName)
 	logConfig.Raft.Bootstrap = a.Config.Bootstrap
 
-	var err error
-	a.log, err = log.NewDistrubutedLog(a.Datadir, logConfig)
+	a.log, err = log.NewDistrubutedLog(a.Config.Datadir, logConfig)
 	if err != nil {
 		return err
 	}
