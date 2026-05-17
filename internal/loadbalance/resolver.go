@@ -18,8 +18,12 @@ var Name = "proglog"
 
 // Resolver implement resolver.Builder and reolver.Resolver interface from grpc
 type Resolver struct {
-	mu            sync.Mutex
-	clientConn    resolver.ClientConn
+	mu sync.Mutex
+
+	// user's client connection. grpc passed it to the resolver for the resolver to update with the servers it discovers
+	clientConn resolver.ClientConn
+
+	// the resolverConn is the resolver's own client connection to the server so it can call GetServers and get the servers
 	resolverConn  *grpc.ClientConn
 	serviceConfig *serviceconfig.ParseResult
 	logger        *zap.Logger
