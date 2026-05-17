@@ -24,7 +24,8 @@ type Resolver struct {
 	clientConn resolver.ClientConn
 
 	// the resolverConn is the resolver's own client connection to the server so it can call GetServers and get the servers
-	resolverConn  *grpc.ClientConn
+	resolverConn *grpc.ClientConn
+
 	serviceConfig *serviceconfig.ParseResult
 	logger        *zap.Logger
 }
@@ -49,7 +50,7 @@ func (r *Resolver) Build(
 	}
 
 	r.serviceConfig = r.clientConn.ParseServiceConfig(
-		fmt.Sprintf(`{"loadBalancingConfig:[{"%s:{}}]}`, Name),
+		fmt.Sprintf(`{"loadBalancingConfig":[{"%s":{}}]}`, Name),
 	)
 
 	log.Printf("loadbalancer-config: %+v", r.serviceConfig)

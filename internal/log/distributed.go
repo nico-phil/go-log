@@ -71,12 +71,12 @@ func (l *DistributedLog) setupRaft(dataDir string) error {
 		return err
 	}
 
-	retain := 1
 	stableStore, err := raftboltdb.NewBoltStore(filepath.Join(dataDir, "raft", "stable"))
 	if err != nil {
 		return err
 	}
 
+	retain := 1
 	snapshotStore, err := raft.NewFileSnapshotStore(
 		filepath.Join(dataDir, "raft"),
 		retain,
@@ -89,7 +89,7 @@ func (l *DistributedLog) setupRaft(dataDir string) error {
 	maxPool := 5
 	timeout := 10 * time.Second
 	transport := raft.NewNetworkTransport(
-		logConfig.Raft.StreamLayer,
+		l.config.Raft.StreamLayer,
 		maxPool,
 		timeout,
 		os.Stderr,
@@ -138,7 +138,7 @@ func (l *DistributedLog) setupRaft(dataDir string) error {
 		config := raft.Configuration{
 			Servers: []raft.Server{{
 				ID:      config.LocalID,
-				Address: transport.LocalAddr(),
+				Address: raft.ServerAddress(l.config.Raft.BindAddr),
 			}},
 		}
 		err = l.raft.BootstrapCluster(config).Error()

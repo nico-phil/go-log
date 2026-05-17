@@ -1,6 +1,7 @@
 package loadbalance
 
 import (
+	"log"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -62,6 +63,7 @@ func (p *Picker) Pick(info balancer.PickInfo) (balancer.PickResult, error) {
 		result.SubConn = p.nextFollower()
 	}
 
+	log.Printf("result.SubConn: %+v", result.SubConn)
 	if result.SubConn == nil {
 		return result, balancer.ErrNoSubConnAvailable
 	}

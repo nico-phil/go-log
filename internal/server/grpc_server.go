@@ -14,7 +14,6 @@ import (
 
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	api "github.com/nico-phil/go-log/api/v1"
-	llog "github.com/nico-phil/go-log/internal/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
@@ -31,7 +30,7 @@ const (
 
 // Config contents the commit log package
 type Config struct {
-	CommitLog   *llog.DistributedLog
+	CommitLog   CommitLog
 	Authorizer  Authorizer
 	GetServerer GetServerer
 }

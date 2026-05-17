@@ -46,6 +46,7 @@ func TestPickerProduceToLeader(t *testing.T) {
 
 func TestPickerConsumesFromFollowers(t *testing.T) {
 	picker, subConns := setupTest()
+
 	info := balancer.PickInfo{
 		FullMethodName: "/log.vX.Log/Consume",
 	}
