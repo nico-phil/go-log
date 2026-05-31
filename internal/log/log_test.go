@@ -1,7 +1,6 @@
 package log
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
@@ -51,8 +50,6 @@ func testAppendRead(t *testing.T, l *Log) {
 		off, err := l.Append(record)
 		require.NoError(t, err)
 		require.Equal(t, uint64(i), off)
-
-		fmt.Printf("off=%d\n", off)
 
 		read, err := l.Read(off)
 		require.NoError(t, err)
