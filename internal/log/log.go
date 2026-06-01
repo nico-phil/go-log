@@ -165,7 +165,7 @@ func (l *Log) LowestOffset() (uint64, error) {
 	return l.Segments[0].baseOffset, nil
 }
 
-// HighestOffset returns the lower offset in the log
+// HighestOffset returns the highest offset in the log
 func (l *Log) HighestOffset() (uint64, error) {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
