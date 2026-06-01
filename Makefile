@@ -21,6 +21,14 @@ build:
 test:	
 	go test -v ./...  -debug=true 
 
+.PHONY: coverage
+coverage:
+	go test -coverprofile=coverage.out ./...
+
+.PHONY: view_coverage
+view_coverage:
+	go tool cover -html=coverage.out
+
 .PHONY: test-single-func
 test-single-func:	
 	go test -v -run ^${FUNC_NAME} internal/${TEST_FOLDER_NAME}/${TEST_FILENAME}
