@@ -48,10 +48,12 @@ func (s *store) Append(p []byte) (n uint64, pos uint64, err error) {
 
 	pos = s.size
 
+	// write the record length to the buffer instead of the file directly, for io performance
 	if err := binary.Write(s.buf, enc, uint64(len(p))); err != nil {
 		return 0, 0, err
 	}
 
+	// // write the actual record to the buffer instead of writing into the file directly, for io performance
 	w, err := s.buf.Write(p)
 	if err != nil {
 		return 0, 0, err
@@ -68,6 +70,7 @@ func (s *store) Read(pos uint64) ([]byte, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
+	// Flush any record that was is the buffer before reading
 	if err := s.buf.Flush(); err != nil {
 		return nil, err
 	}
