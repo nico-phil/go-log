@@ -8,24 +8,38 @@ import (
 )
 
 var (
-	write = []byte("hello world")
-	width = uint64(len(write)) + lenWidth
+	write         = []byte("hello world")
+	width         = uint64(len(write)) + lenWidth
+	permamentFile = true
 )
 
 // TestStoreAppenRead tests Append and Read method
 func TestStoreAppenRead(t *testing.T) {
-	f, err := os.CreateTemp("", "store")
-	require.NoError(t, err)
-	defer os.Remove(f.Name())
+	storeFilename := "test.store"
+	var fStore *os.File
+	var err error
+	if permamentFile {
+		fStore, err = os.OpenFile(storeFilename, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0600)
+	} else {
+		fStore, err = os.CreateTemp("", storeFilename)
+	}
 
-	s, err := NewStore(f)
+	require.NoError(t, err)
+
+	defer func() {
+		if !permamentFile {
+			os.Remove(fStore.Name())
+		}
+	}()
+
+	s, err := NewStore(fStore)
 	require.NoError(t, err)
 
 	testAppend(t, s)
 	testRead(t, s)
 	testReatAt(t, s)
 
-	s, err = NewStore(f)
+	s, err = NewStore(fStore)
 	require.NoError(t, err)
 
 	testRead(t, s)
