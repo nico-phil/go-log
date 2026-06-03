@@ -57,6 +57,8 @@ func NewIndex(f *os.File, c Config) (*index, error) {
 }
 
 // Write appends the given offset and position to the index file
+// off: offset in for the index file,
+// pos: offset for the store file
 func (i *index) Write(off uint32, pos uint64) error {
 	if uint64(len(i.MMap)) < i.size+entryWidth {
 		return io.EOF
