@@ -10,18 +10,30 @@ import (
 
 // TestIndex test index for the log Index: 0->0, 1->13
 func TestIndex(t *testing.T) {
-	f, err := os.CreateTemp("", "index_test")
+	indexFilename := "test.index"
+	var fIndex *os.File
+	var err error
+	if permamentFile {
+		fIndex, err = os.OpenFile(indexFilename, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0600)
+	} else {
+		fIndex, err = os.CreateTemp("", indexFilename)
+	}
 	require.NoError(t, err)
-	defer os.Remove(f.Name())
+
+	defer func() {
+		if !permamentFile {
+			os.Remove(indexFilename)
+		}
+	}()
 
 	c := Config{}
 	c.Segment.MaxIndexBytes = 1024
-	idx, err := NewIndex(f, c)
+	idx, err := NewIndex(fIndex, c)
 	require.NoError(t, err)
 
 	_, _, err = idx.Read(-1)
 	require.Error(t, err)
-	require.Equal(t, f.Name(), idx.Name())
+	require.Equal(t, fIndex.Name(), idx.Name())
 
 	entries := []struct {
 		Off uint32
@@ -47,7 +59,7 @@ func TestIndex(t *testing.T) {
 	require.NoError(t, err)
 
 	// index should build its state from the existing file
-	f, _ = os.OpenFile(f.Name(), os.O_RDWR, 0600)
+	f, _ := os.OpenFile(fIndex.Name(), os.O_RDWR, 0600)
 	idx, err = NewIndex(f, c)
 	require.NoError(t, err)
 	off, pos, err := idx.Read(-1)
