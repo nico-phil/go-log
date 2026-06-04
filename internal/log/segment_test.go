@@ -2,6 +2,7 @@ package log
 
 import (
 	"io"
+	"log"
 	"os"
 	"testing"
 
@@ -10,12 +11,34 @@ import (
 )
 
 func TestSegment(t *testing.T) {
-	dir, err := os.MkdirTemp("", "segment")
-	require.NoError(t, err)
-
 	c := Config{}
 	c.Segment.MaxStoreBytes = 1024
 	c.Segment.MaxIndexBytes = entryWidth * 3 //36 bytes
+
+	var dir = "./../../proglog"
+	var err error
+	if permamentFile {
+		_, err := os.Stat(dir)
+		if err != nil {
+			log.Println("stat is no nil, the file is already exist:****")
+			err = os.Mkdir(dir, os.ModePerm)
+			require.NoError(t, err)
+
+			err = os.Chmod(dir, os.ModePerm)
+			require.NoError(t, err)
+		}
+
+	} else {
+		dir, err = os.MkdirTemp("", dir)
+		require.NoError(t, err)
+	}
+
+	defer func() {
+		if !permamentFile {
+			os.RemoveAll(dir)
+		}
+
+	}()
 
 	want := api.Record{Value: []byte("hello world")}
 	baseOffset := uint64(0)
