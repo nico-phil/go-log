@@ -32,6 +32,10 @@ view_coverage:
 .PHONY: test-single-func
 test-single-func:	
 	go test -v -run ^${FUNC_NAME} internal/${TEST_FOLDER_NAME}/${TEST_FILENAME}
+
+.PHONY: test-clean
+test-clean:
+	rm -r proglog
  
 
 .PHONY: tidy
