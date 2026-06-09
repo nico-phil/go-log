@@ -3,6 +3,7 @@ package proglog
 import (
 	"log"
 	"os"
+	"path"
 
 	"github.com/nico-phil/go-log/internal/agent"
 	"github.com/nico-phil/go-log/internal/config"
@@ -45,5 +46,10 @@ func setupFlags(cmd *cobra.Command) error {
 
 	cmd.Flags().String("config-file", "", "Path to config file.")
 
+	dataDir := path.Join(os.TempDir(), "proglog")
+
+	cmd.Flags().String("data-dir", dataDir, "Directory to store log and Raft Data")
+
+	cmd.Flags().String("bind-addr", "127.0.0.1:5000", "Directory to store log and Raft Data")
 	return nil
 }
