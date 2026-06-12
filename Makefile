@@ -4,9 +4,7 @@
 #requested, regardless of whether a file with that name exists in the directory. 
 
 CONFIG_PATH = ${HOME}/.proglog/
-TEST_FUNC_NAME = TestPickerNoSubConnAvailable
-TEST_FILENAME = picker_test.go
-TEST_FOLDER_NAME = loadbalance
+TEST_NAME = "TestStoreAppenRead"
 TAG ?= 0.0.1
 
 .PHONY: run	
@@ -29,9 +27,10 @@ coverage:
 view_coverage:
 	go tool cover -html=coverage.out
 
-.PHONY: test-single-func
-test-single-func:	
-	go test -v -run ^${FUNC_NAME} internal/${TEST_FOLDER_NAME}/${TEST_FILENAME}
+
+.PHONY: ${TEST_NAME}
+${TEST_NAME}:
+	go test  -run ^${TEST_NAME} go-log/log -v
 
 .PHONY: test-clean
 test-clean:
