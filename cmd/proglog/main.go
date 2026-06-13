@@ -22,12 +22,12 @@ type cfg struct {
 }
 
 func main() {
-	// cli := cli{}
+	cli := cli{}
 
 	cmd := &cobra.Command{
 		Use:    "proglog",
-		PreRun: nil,
-		RunE:   nil,
+		PreRun: cli.setupConfig,
+		RunE:   cli.run,
 	}
 
 	if err := cmd.Execute(); err != nil {
@@ -35,9 +35,11 @@ func main() {
 	}
 }
 
-func run(c *cli) error {
+func (c *cli) run(cmd *cobra.Command, args []string) error {
 	return nil
 }
+
+func (c *cli) setupConfig(cmd *cobra.Command, args []string) {}
 
 func setupFlags(cmd *cobra.Command) error {
 	hostname, err := os.Hostname()
