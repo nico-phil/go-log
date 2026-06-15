@@ -114,7 +114,11 @@ grpc-consume:
 	grpcurl -d '{"offset":2}' -plaintext localhost:4000 log.v1.Log/Consume
 
 
-
 .PHONY: build-docker
 build-docker:
 	docker build -t github.com/nico-phil/proglog:$(TAG) .
+
+.PHONY: load-image
+load-image:
+	kind load docker-image github.com/nico-phil/proglog:$(TAG)
+
