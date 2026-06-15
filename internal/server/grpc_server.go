@@ -25,7 +25,7 @@ import (
 const (
 	objectwildCard = "*"
 	produceAction  = "produce"
-	consume        = "consume"
+	consumeAction  = "consume"
 )
 
 // Config contents the commit log package
