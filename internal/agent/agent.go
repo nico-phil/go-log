@@ -37,13 +37,13 @@ type Agent struct {
 
 // Config contains configurations for all components
 type Config struct {
-	ServerTlsConfig *tls.Config
-	PeerTlsConfig   *tls.Config
-	Datadir         string
+	ServerTLSConfig *tls.Config
+	PeerTLSConfig   *tls.Config
+	DataDir         string
 	BindAddr        string
 	RPCPort         int
 	NodeName        string
-	StartJoinAddr   []string
+	StartJoinAddrs  []string
 	ACLModelFile    string
 	ACLPolicyFile   string
 	Bootstrap       bool
@@ -120,8 +120,8 @@ func (a *Agent) setupLog() error {
 
 	logConfig.Raft.StreamLayer = log.NewStreamLayer(
 		raftLn,
-		a.Config.ServerTlsConfig,
-		a.Config.PeerTlsConfig,
+		a.Config.ServerTLSConfig,
+		a.Config.PeerTLSConfig,
 	)
 
 	rpcAddr, err := a.Config.RPCAddr()
@@ -132,7 +132,7 @@ func (a *Agent) setupLog() error {
 	logConfig.Raft.LocalID = raft.ServerID(a.Config.NodeName)
 	logConfig.Raft.Bootstrap = a.Config.Bootstrap
 
-	a.log, err = log.NewDistrubutedLog(a.Config.Datadir, logConfig)
+	a.log, err = log.NewDistrubutedLog(a.Config.DataDir, logConfig)
 	if err != nil {
 		return err
 	}
@@ -170,8 +170,8 @@ func (a *Agent) setupServer() error {
 	}
 
 	var opts []grpc.ServerOption
-	if a.Config.ServerTlsConfig != nil {
-		creds := credentials.NewTLS(a.Config.ServerTlsConfig)
+	if a.Config.ServerTLSConfig != nil {
+		creds := credentials.NewTLS(a.Config.ServerTLSConfig)
 		opts = append(opts, grpc.Creds(creds))
 	}
 
@@ -207,7 +207,7 @@ func (a *Agent) SetupMemberShip() error {
 		Tags: map[string]string{
 			"rpc_addr": rpcAddr,
 		},
-		StartJoinAddrs: a.Config.StartJoinAddr,
+		StartJoinAddrs: a.Config.StartJoinAddrs,
 	})
 
 	return err
