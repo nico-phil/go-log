@@ -53,12 +53,12 @@ func TestAgent(t *testing.T) {
 
 		config := Config{
 			NodeName:        fmt.Sprintf("%d", i),
-			ServerTlsConfig: serverTlsconfig,
-			PeerTlsConfig:   peerTlsConfig,
-			Datadir:         dir,
+			ServerTLSConfig: serverTlsconfig,
+			PeerTLSConfig:   peerTlsConfig,
+			DataDir:         dir,
 			BindAddr:        bindArr,
 			RPCPort:         ports[1],
-			StartJoinAddr:   startJoinAddrs,
+			StartJoinAddrs:  startJoinAddrs,
 			ACLModelFile:    config.ACLModelFile,
 			ACLPolicyFile:   config.ACLPolicyFile,
 			Bootstrap:       i == 0,
@@ -75,7 +75,7 @@ func TestAgent(t *testing.T) {
 		for _, agent := range agents {
 			err := agent.Shutdown()
 			require.NoError(t, err)
-			require.NoError(t, os.RemoveAll(agent.Datadir))
+			require.NoError(t, os.RemoveAll(agent.DataDir))
 		}
 	}()
 
@@ -131,7 +131,7 @@ func TestAgent(t *testing.T) {
 
 // client creates new client for testing purpose
 func client(t *testing.T, agent *Agent) api.LogClient {
-	tlsCreds := credentials.NewTLS(agent.PeerTlsConfig)
+	tlsCreds := credentials.NewTLS(agent.PeerTLSConfig)
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(tlsCreds)}
 
 	rpcAddr, err := agent.Config.RPCAddr()

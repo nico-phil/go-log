@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	
+
 }
 
 func runAgent() {
@@ -59,12 +59,12 @@ func runAgent() {
 
 		config := agent.Config{
 			NodeName:        fmt.Sprintf("%d", i),
-			ServerTlsConfig: serverTlsconfig,
-			PeerTlsConfig:   peerTlsConfig,
-			Datadir:         fmt.Sprintf("agent-demo_%d", i),
+			ServerTLSConfig: serverTlsconfig,
+			PeerTLSConfig:   peerTlsConfig,
+			DataDir:         fmt.Sprintf("agent-demo_%d", i),
 			BindAddr:        bindArr,
 			RPCPort:         ports[1],
-			StartJoinAddr:   startJoinAddrs,
+			StartJoinAddrs:  startJoinAddrs,
 			ACLModelFile:    config.ACLModelFile,
 			ACLPolicyFile:   config.ACLPolicyFile,
 		}
@@ -105,7 +105,7 @@ func runAgent() {
 }
 
 func client(agent *agent.Agent) api.LogClient {
-	tlsCreds := credentials.NewTLS(agent.PeerTlsConfig)
+	tlsCreds := credentials.NewTLS(agent.PeerTLSConfig)
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(tlsCreds)}
 
 	rpcAddr, _ := agent.Config.RPCAddr()
