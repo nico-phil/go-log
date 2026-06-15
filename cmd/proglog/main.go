@@ -14,10 +14,12 @@ import (
 	"github.com/spf13/viper"
 )
 
+// cli represents our cli agent
 type cli struct {
 	cfg
 }
 
+// cfg contains config for the cli to run the agent
 type cfg struct {
 	agent.Config
 	ServerTLSConfig config.TLSConfig
@@ -44,6 +46,7 @@ func main() {
 	}
 }
 
+// run start the agent when the proglog cmd get called
 func (c *cli) run(cmd *cobra.Command, args []string) error {
 	agent, err := agent.New(c.cfg.Config)
 	if err != nil {
@@ -58,6 +61,7 @@ func (c *cli) run(cmd *cobra.Command, args []string) error {
 	return agent.Shutdown()
 }
 
+// setupConfig set configs for the agent
 func (c *cli) setupConfig(cmd *cobra.Command, args []string) error {
 
 	var err error
@@ -114,6 +118,7 @@ func (c *cli) setupConfig(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
+// setupFlags
 func setupFlags(cmd *cobra.Command) error {
 	hostname, err := os.Hostname()
 	if err != nil {
