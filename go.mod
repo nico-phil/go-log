@@ -9,6 +9,8 @@ require (
 	github.com/hashicorp/raft-boltdb v0.0.0-20251103221153-05f9dd7a5148
 	github.com/hashicorp/serf v0.10.2
 	github.com/soheilhy/cmux v0.1.5
+	github.com/spf13/cobra v1.10.2
+	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
 	github.com/travisjeffery/go-dynaport v1.0.0
 	github.com/tysonmote/gommap v0.0.3
@@ -52,9 +54,7 @@ require (
 	github.com/sourcegraph/conc v0.3.1-0.20240121214520-5f936abd7ae8 // indirect
 	github.com/spf13/afero v1.15.0 // indirect
 	github.com/spf13/cast v1.10.0 // indirect
-	github.com/spf13/cobra v1.10.2 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
-	github.com/spf13/viper v1.21.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	go.uber.org/atomic v1.4.0 // indirect
 	go.uber.org/multierr v1.1.0 // indirect
