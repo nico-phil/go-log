@@ -122,3 +122,11 @@ build-docker:
 load-image:
 	kind load docker-image github.com/nico-phil/proglog:$(TAG)
 
+.PHONY: helm-i
+helm-i: 
+	helm install proglog deploy/proglog 
+
+
+.PHONY: helm-uni
+helm-uni: 
+	helm uninstall proglog 
