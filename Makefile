@@ -130,3 +130,6 @@ helm-i:
 .PHONY: helm-uni
 helm-uni: 
 	helm uninstall proglog 
+
+.PHONY: deploy-local
+deploy-local: build-docker load-image helm-i

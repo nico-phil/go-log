@@ -14,7 +14,7 @@ RUN CGO_ENABLE=0 go build -o /go/bin/proglog ./cmd/proglog/
 
 
 FROM scratch
-COPY --from=build go/bin/proglog /bin/proglog
+COPY --from=build go/bin/proglog /bin/proglogd
 # COPY --from=build /go/bin/grpc_health_probe /bin/grpc_health_probe
 
 ENTRYPOINT [ "bin/proglog" ]
