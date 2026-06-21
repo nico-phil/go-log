@@ -114,9 +114,13 @@ grpc-consume:
 	grpcurl -d '{"offset":2}' -plaintext localhost:4000 log.v1.Log/Consume
 
 
-.PHONY: build-docker
-build-docker:
+.PHONY: docker-build
+docker-build:
 	docker build -t github.com/nico-phil/proglog:$(TAG) .
+
+.PHONY: docker-run
+docker-run:
+	docker run github.com/nico-phil/proglog:$(TAG) .
 
 .PHONY: load-image
 load-image:
@@ -132,4 +136,4 @@ helm-uni:
 	helm uninstall proglog 
 
 .PHONY: deploy-local
-deploy-local: build-docker load-image helm-i
+deploy-local: docker-build load-image helm-i
