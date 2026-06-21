@@ -137,3 +137,9 @@ helm-uni:
 
 .PHONY: deploy-local
 deploy-local: docker-build load-image helm-i
+
+.PHONY: delete-pvcs
+delete-pvcs: 
+	kubectl delete pvc data-dir-proglog-0
+	kubectl delete pvc data-dir-proglog-1
+	kubectl delete pvc data-dir-proglog-2
