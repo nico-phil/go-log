@@ -95,37 +95,37 @@ func TestAgent(t *testing.T) {
 
 	fmt.Printf("produceReponse: %+v", produceReponse)
 
-	// // we want to wait until replication finished
-	// time.Sleep(3 * time.Second)
+	// we want to wait until replication finished
+	time.Sleep(3 * time.Second)
 
-	// consumeReponse, err := leaderClient.Consume(
-	// 	context.Background(),
-	// 	&api.ConsumeRequest{
-	// 		Offset: produceReponse.Offset,
-	// 	})
-	// require.NoError(t, err)
-	// require.Equal(t, consumeReponse.Record.Value, want)
+	consumeReponse, err := leaderClient.Consume(
+		context.Background(),
+		&api.ConsumeRequest{
+			Offset: produceReponse.Offset,
+		})
+	require.NoError(t, err)
+	require.Equal(t, consumeReponse.Record.Value, want)
 
-	// followerClient := client(t, agents[1])
-	// consumeReponse, err = followerClient.Consume(
-	// 	context.Background(),
-	// 	&api.ConsumeRequest{
-	// 		Offset: produceReponse.Offset,
-	// 	})
+	followerClient := client(t, agents[1])
+	consumeReponse, err = followerClient.Consume(
+		context.Background(),
+		&api.ConsumeRequest{
+			Offset: produceReponse.Offset,
+		})
 
-	// require.NoError(t, err)
+	require.NoError(t, err)
 
-	// require.Equal(t, consumeReponse.Record.Value, want)
+	require.Equal(t, consumeReponse.Record.Value, want)
 
-	// consumeReponse, err = leaderClient.Consume(
-	// 	context.Background(),
-	// 	&api.ConsumeRequest{
-	// 		Offset: produceReponse.Offset + 1,
-	// 	},
-	// )
+	consumeReponse, err = leaderClient.Consume(
+		context.Background(),
+		&api.ConsumeRequest{
+			Offset: produceReponse.Offset + 1,
+		},
+	)
 
-	// require.Nil(t, consumeReponse)
-	// require.Error(t, err)
+	require.Nil(t, consumeReponse)
+	require.Error(t, err)
 
 }
 

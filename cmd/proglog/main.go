@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -38,8 +37,6 @@ func main() {
 	if err := setupFlags(cmd); err != nil {
 		log.Fatal(err)
 	}
-
-	fmt.Printf("%+v", cmd.Flags())
 
 	if err := cmd.Execute(); err != nil {
 		log.Fatal(err)
