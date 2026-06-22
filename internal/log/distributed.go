@@ -76,15 +76,15 @@ func (l *DistributedLog) setupRaft(dataDir string) error {
 		return err
 	}
 
-	retain := 1
-	snapshotStore, err := raft.NewFileSnapshotStore(
-		filepath.Join(dataDir, "raft"),
-		retain,
-		os.Stderr,
-	)
-	if err != nil {
-		return err
-	}
+	// retain := 1
+	// snapshotStore, err := raft.NewFileSnapshotStore(
+	// 	filepath.Join(dataDir, "raft"),
+	// 	retain,
+	// 	os.Stderr,
+	// )
+	// if err != nil {
+	// 	return err
+	// }
 
 	maxPool := 5
 	timeout := 10 * time.Second
@@ -119,7 +119,7 @@ func (l *DistributedLog) setupRaft(dataDir string) error {
 		fsm,
 		logStore,
 		stableStore,
-		snapshotStore,
+		nil,
 		transport,
 	)
 	if err != nil {
@@ -129,7 +129,7 @@ func (l *DistributedLog) setupRaft(dataDir string) error {
 	hasState, err := raft.HasExistingState(
 		logStore,
 		stableStore,
-		snapshotStore,
+		nil,
 	)
 	if err != nil {
 		return err

@@ -1,3 +1,4 @@
 *.out
 *.index
 *.store
+.vscode
