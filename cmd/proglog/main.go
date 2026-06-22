@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -45,6 +46,7 @@ func main() {
 
 // run start the agent when the proglog cmd get called
 func (c *cli) run(cmd *cobra.Command, args []string) error {
+	fmt.Printf("CONFIG: ***%+v****\n", c.cfg.Config)
 	agent, err := agent.New(c.cfg.Config)
 	if err != nil {
 		return err
@@ -124,7 +126,7 @@ func setupFlags(cmd *cobra.Command) error {
 
 	cmd.Flags().String("config-file", "", "Path to config file.")
 
-	dataDir := path.Join(os.TempDir(), "proglog")
+	dataDir := path.Join("../../", "myproglog")
 	cmd.Flags().String("data-dir", dataDir, "Directory to store log and Raft data.")
 
 	cmd.Flags().String("node-name", hostname, "Unique server ID.")
@@ -133,20 +135,20 @@ func setupFlags(cmd *cobra.Command) error {
 
 	cmd.Flags().Int("rpc-port", 8400, "Port for RPC clients (and Raft) connections.")
 
-	cmd.Flags().StringSlice("start-join-addrs", nil, "Serf addresses to join.")
+	cmd.Flags().StringSlice("start-join-addrs", []string{"127.0.0.1:8401"}, "Serf addresses to join.")
 
-	cmd.Flags().Bool("bootstrap", false, "Bootstrap the cluster.")
+	cmd.Flags().Bool("bootstrap", true, "Bootstrap the cluster.")
 
-	cmd.Flags().String("acl-model-file", "", "Path to ACL model.")
-	cmd.Flags().String("acl-policy-file", "", "Path to ACL policy.")
+	cmd.Flags().String("acl-model-file", config.ACLModelFile, "Path to ACL model.")
+	cmd.Flags().String("acl-policy-file", config.ACLPolicyFile, "Path to ACL policy.")
 
-	cmd.Flags().String("server-tls-cert-file", "", "Path to server tls cert.")
-	cmd.Flags().String("server-tls-key-file", "", "Path to server tls key.")
-	cmd.Flags().String("server-tls-ca-file", "", "Path to server certificate authority.")
+	cmd.Flags().String("server-tls-cert-file", config.ServerCertFile, "Path to server tls cert.")
+	cmd.Flags().String("server-tls-key-file", config.ServerKeyFile, "Path to server tls key.")
+	cmd.Flags().String("server-tls-ca-file", config.CAFile, "Path to server certificate authority.")
 
-	cmd.Flags().String("peer-tls-cert-file", "", "Path to peer tls cert.")
-	cmd.Flags().String("peer-tls-key-file", "", "Path to peer tls key.")
-	cmd.Flags().String("peer-tls-ca-file", "", "Path to peer certificate authority.")
+	cmd.Flags().String("peer-tls-cert-file", config.RootClientCertFile, "Path to peer tls cert.")
+	cmd.Flags().String("peer-tls-key-file", config.RootClientKeyFile, "Path to peer tls key.")
+	cmd.Flags().String("peer-tls-ca-file", config.CAFile, "Path to peer certificate authority.")
 
 	return viper.BindPFlags(cmd.Flags())
 }

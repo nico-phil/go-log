@@ -3,7 +3,6 @@ package agent
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"testing"
 	"time"
@@ -40,7 +39,7 @@ func TestAgent(t *testing.T) {
 	agents := make([]*Agent, 3)
 	for i := 0; i < 3; i++ {
 
-		dir, err := os.MkdirTemp("", "agent-test-log")
+		dir, err := os.MkdirTemp("", "proglog-agent")
 		require.NoError(t, err)
 
 		ports := dynaport.Get(2)
@@ -141,8 +140,6 @@ func client(t *testing.T, agent *Agent) api.LogClient {
 		fmt.Sprintf("%s:///%s", loadbalance.Name, rpcAddr),
 		opts...,
 	)
-
-	log.Printf("conn: %+v", conn)
 
 	require.NoError(t, err)
 
