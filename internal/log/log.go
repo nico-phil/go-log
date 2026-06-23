@@ -51,7 +51,7 @@ func (l *Log) setup() error {
 			path.Ext(file.Name()),
 		)
 
-		off, _ := strconv.ParseUint(offStr, 10, 10)
+		off, _ := strconv.ParseUint(offStr, 10, 0)
 		baseOffsets = append(baseOffsets, off)
 	}
 
@@ -102,12 +102,10 @@ func (l *Log) Append(record *api.Record) (uint64, error) {
 	}
 
 	if l.ActiveSegment.IsMaxed() {
-		if err = l.newSegment(off + 1); err != nil {
-			return 0, err
-		}
+		err = l.newSegment(off + 1)
 	}
 
-	return off, nil
+	return off, err
 }
 
 // Read takes an offet and return a record and error
