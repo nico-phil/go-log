@@ -88,7 +88,7 @@ func (l *DistributedLog) setupRaft(dataDir string) error {
 	}
 
 	maxPool := 5
-	timeout := 10 * time.Second
+	timeout := 30 * time.Second
 	transport := raft.NewNetworkTransport(
 		l.config.Raft.StreamLayer,
 		maxPool,
@@ -398,21 +398,25 @@ func newLogStore(dir string, config Config) (*logStore, error) {
 
 // FirstIndex returns first index in the log
 func (l *logStore) FirstIndex() (uint64, error) {
-	return l.LowestOffset()
+	offset, err := l.Log.LowestOffset()
+	if errors.Is(err, io.EOF) {
+		return 0, nil
+	}
+	return offset, err
 }
 
 // LastIndex returns the last index in the log
 func (l *logStore) LastIndex() (uint64, error) {
-	off, err := l.HighestOffset()
-	if err == io.EOF || off == 0 {
+	offset, err := l.Log.HighestOffset()
+	if errors.Is(err, io.EOF) {
 		return 0, nil
 	}
-	return off, nil
+	return offset, err
 }
 
 // GetLog  gets a log entry at a given index.
 func (l *logStore) GetLog(index uint64, out *raft.Log) error {
-	in, err := l.Read(index)
+	in, err := l.Log.Read(index)
 	if err != nil {
 		if errors.Is(err, io.EOF) {
 			return raft.ErrLogNotFound

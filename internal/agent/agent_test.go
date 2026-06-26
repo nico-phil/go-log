@@ -74,7 +74,7 @@ func TestAgent(t *testing.T) {
 		for _, agent := range agents {
 			err := agent.Shutdown()
 			require.NoError(t, err)
-			require.NoError(t, os.RemoveAll(agent.DataDir))
+			require.NoError(t, os.RemoveAll(agent.Config.DataDir))
 		}
 	}()
 
@@ -130,7 +130,7 @@ func TestAgent(t *testing.T) {
 
 // client creates new client for testing purpose
 func client(t *testing.T, agent *Agent) api.LogClient {
-	tlsCreds := credentials.NewTLS(agent.PeerTLSConfig)
+	tlsCreds := credentials.NewTLS(agent.Config.PeerTLSConfig)
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(tlsCreds)}
 
 	rpcAddr, err := agent.Config.RPCAddr()

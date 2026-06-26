@@ -14,7 +14,8 @@ import (
 func main() {
 	addr := flag.String("addr", ":8400", "service addr")
 	conn, err := grpc.NewClient(*addr,
-		grpc.WithTransportCredentials(insecure.NewCredentials()))
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
 
 	if err != nil {
 		return

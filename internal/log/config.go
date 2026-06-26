@@ -13,7 +13,7 @@ type Config struct {
 	Raft struct {
 		BindAddr string
 		raft.Config
-		StreamLayer raft.StreamLayer
+		StreamLayer *StreamLayer
 		Bootstrap   bool
 	}
 }

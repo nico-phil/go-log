@@ -126,7 +126,7 @@ func setupFlags(cmd *cobra.Command) error {
 
 	cmd.Flags().String("config-file", "", "Path to config file.")
 
-	dataDir := path.Join("../../", "myproglog")
+	dataDir := path.Join("myproglog")
 	cmd.Flags().String("data-dir", dataDir, "Directory to store log and Raft data.")
 
 	cmd.Flags().String("node-name", hostname, "Unique server ID.")

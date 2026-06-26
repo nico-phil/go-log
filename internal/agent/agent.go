@@ -24,10 +24,10 @@ import (
 // Agent contains All the differents components of system
 type Agent struct {
 	Config
-	log        *log.DistributedLog
-	server     *grpc.Server
-	membership *discovery.Membership
-
+	log          *log.DistributedLog
+	server       *grpc.Server
+	membership   *discovery.Membership
+	logger       *zap.Logger
 	shutdown     bool
 	shutdowns    chan struct{}
 	shutdownLock sync.Mutex
@@ -150,6 +150,7 @@ func (a *Agent) setupLogger() error {
 	if err != nil {
 		return err
 	}
+	a.logger = logger
 
 	zap.ReplaceGlobals(logger)
 
@@ -241,10 +242,13 @@ func (a *Agent) Shutdown() error {
 }
 
 func (a *Agent) Serve() error {
+	a.logger.Info("agent is serving BEFORE", zap.String("bind_addr", a.Config.BindAddr), zap.Int("rpc_port", a.Config.RPCPort))
 	if err := a.mux.Serve(); err != nil {
+		a.logger.Error("agent is serving ERROR", zap.String("bind_addr", a.Config.BindAddr), zap.Int("rpc_port", a.Config.RPCPort))
 		_ = a.Shutdown()
 		return err
 	}
+	a.logger.Info("agent is serving AFTER", zap.String("bind_addr", a.Config.BindAddr), zap.Int("rpc_port", a.Config.RPCPort))
 
 	return nil
 }
