@@ -13,10 +13,19 @@ import (
 
 func main() {
 	addr := flag.String("addr", ":8400", "service addr")
-	conn, err := grpc.NewClient(*addr,
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
 
+	// peerTlsConfig, err := config.SetupTLSConfig(config.TLSConfig{
+	// 	CertFile:      config.RootClientCertFile,
+	// 	KeyFile:       config.RootClientKeyFile,
+	// 	CAFile:        config.CAFile,
+	// 	ServerAddress: "127.0.0.1",
+	// 	Server:        false,
+	// })
+
+	// tlsCreds := credentials.NewTLS(peerTlsConfig)
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+
+	conn, err := grpc.NewClient(*addr, opts...)
 	if err != nil {
 		return
 	}
