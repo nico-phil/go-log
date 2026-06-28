@@ -113,6 +113,10 @@ curl-consume:
 grpc-consume:
 	grpcurl -d '{"offset":2}' -plaintext localhost:4000 log.v1.Log/Consume
 
+.PHONY: grpc-produce
+grpc-produce:
+	grpcurl -d '{"record": {"value": "hello"}}' -plaintext 127.0.0.1:8400 log.v1.Log/Produce
+
 
 .PHONY: docker-build
 docker-build:
@@ -143,3 +147,7 @@ delete-pvcs:
 	kubectl delete pvc datadir-proglog-0
 	kubectl delete pvc datadir-proglog-1
 	kubectl delete pvc datadir-proglog-2
+
+.PHONY: get-pvcs
+get-pvcs:
+	kubectl get pvc  
