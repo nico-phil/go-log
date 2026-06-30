@@ -137,7 +137,11 @@ helm-i:
 
 .PHONY: helm-uni
 helm-uni: 
-	helm uninstall proglog delete-pvcs
+	-helm uninstall
+	-kubectl delete pvc datadir-proglog-0
+	-kubectl delete pvc datadir-proglog-1
+	-kubectl delete pvc datadir-proglog-2
+
 
 .PHONY: deploy-local
 deploy-local: docker-build load-image helm-i

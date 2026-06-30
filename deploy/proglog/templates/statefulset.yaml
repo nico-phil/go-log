@@ -42,10 +42,6 @@ spec:
           mountPath: /var/run/proglog
       # containers...
       containers:
-        # - name: nginx
-        #   image: nginx:latest
-        #   ports:
-        #     - containerPort: 80
         - name: {{ include "proglog.fullname" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           ports:
@@ -55,7 +51,7 @@ spec:
               name: serf
           args:
             - --config-file=/var/run/proglog/config.yaml
-          # probes...
+          #probes...
           # readinessProbe:
           #   exec:
           #     command: ["/bin/grpc_health_probe", "-addr=:{{ .Values.rpcPort }}"]
