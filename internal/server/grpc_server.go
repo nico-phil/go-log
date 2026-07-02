@@ -105,7 +105,6 @@ func NewGRPCServer(config *Config, opts ...grpc.ServerOption) (*grpc.Server, err
 
 	healthServer := health.NewServer()
 	healthpb.RegisterHealthServer(gsrv, healthServer)
-
 	healthServer.SetServingStatus("", healthpb.HealthCheckResponse_SERVING)
 
 	srv, err := newgrpcServer(config)
