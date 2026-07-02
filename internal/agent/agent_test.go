@@ -43,7 +43,8 @@ func TestAgent(t *testing.T) {
 		require.NoError(t, err)
 
 		ports := dynaport.Get(2)
-		bindArr := fmt.Sprintf("127.0.0.1:%d", ports[0])
+		bindArr := fmt.Sprintf("%s:%d", "127.0.0.1", ports[0])
+		rpcPort := ports[1]
 
 		var startJoinAddrs []string
 		if i != 0 {
@@ -56,7 +57,7 @@ func TestAgent(t *testing.T) {
 			PeerTLSConfig:   peerTlsConfig,
 			DataDir:         dir,
 			BindAddr:        bindArr,
-			RPCPort:         ports[1],
+			RPCPort:         rpcPort,
 			StartJoinAddrs:  startJoinAddrs,
 			ACLModelFile:    config.ACLModelFile,
 			ACLPolicyFile:   config.ACLPolicyFile,

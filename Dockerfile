@@ -4,7 +4,7 @@ WORKDIR /go/src/proglog
 
 COPY .  .
 
-RUN CGO_ENABLE=0 go build -o /go/bin/proglog ./cmd/proglog/
+RUN CGO_ENABLED=0 go build -o /go/bin/proglog ./cmd/proglog/
 
 RUN GRPC_HEALTH_PROBE_VERSION=v0.3.2 && \
     mkdir -p /go/bin && \
@@ -19,4 +19,5 @@ COPY --from=build go/bin/proglog /bin/proglog
 COPY --from=build /go/bin/grpc_health_probe /bin/grpc_health_probe
 
 ENTRYPOINT [ "bin/proglog" ]
+
 

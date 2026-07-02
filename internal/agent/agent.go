@@ -159,14 +159,14 @@ func (a *Agent) setupLogger() error {
 
 // setupServer sets up the server for the agent
 func (a *Agent) setupServer() error {
-	autorizer := auth.New(
+	authorizer := auth.New(
 		a.Config.ACLModelFile,
 		a.Config.ACLPolicyFile,
 	)
 
 	serverConfig := server.Config{
 		CommitLog:   a.log,
-		Authorizer:  autorizer,
+		Authorizer:  authorizer,
 		GetServerer: a.log,
 	}
 
@@ -242,13 +242,11 @@ func (a *Agent) Shutdown() error {
 }
 
 func (a *Agent) Serve() error {
-	a.logger.Info("agent is serving BEFORE", zap.String("bind_addr", a.Config.BindAddr), zap.Int("rpc_port", a.Config.RPCPort))
+	a.logger.Info("agent is running:", zap.String("bind_addr", a.Config.BindAddr), zap.Int("rpc_port", a.Config.RPCPort))
 	if err := a.mux.Serve(); err != nil {
-		a.logger.Error("agent is serving ERROR", zap.String("bind_addr", a.Config.BindAddr), zap.Int("rpc_port", a.Config.RPCPort))
+		a.logger.Error("Error running agent server:", zap.String("bind_addr", a.Config.BindAddr), zap.Int("rpc_port", a.Config.RPCPort))
 		_ = a.Shutdown()
 		return err
 	}
-	a.logger.Info("agent is serving AFTER", zap.String("bind_addr", a.Config.BindAddr), zap.Int("rpc_port", a.Config.RPCPort))
-
 	return nil
 }
