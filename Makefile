@@ -111,11 +111,11 @@ curl-consume:
 
 .PHONY: grpc-consume
 grpc-consume:
-	grpcurl -d '{"offset":2}' -plaintext localhost:4000 log.v1.Log/Consume
+	grpcurl -d '{"offset":2}' -plaintext 127.0.0.1:8400 log.v1.Log/Consume
 
 .PHONY: grpc-produce
 grpc-produce:
-	grpcurl -d '{"record": {"value": "hello"}}' -plaintext 127.0.0.1:8400 log.v1.Log/Produce
+	grpcurl -d '{"record": {"value": "d29ybGQ="}}' -plaintext 127.0.0.1:8400 log.v1.Log/Produce
 
 
 .PHONY: docker-build
@@ -137,7 +137,7 @@ helm-i:
 
 .PHONY: helm-uni
 helm-uni: 
-	-helm uninstall
+	-helm uninstall proglog
 	-kubectl delete pvc datadir-proglog-0
 	-kubectl delete pvc datadir-proglog-1
 	-kubectl delete pvc datadir-proglog-2
