@@ -84,7 +84,7 @@ func (c *cli) setupConfig(cmd *cobra.Command, args []string) error {
 	c.cfg.RPCPort = viper.GetInt("rpc-port")
 	c.cfg.StartJoinAddrs = viper.GetStringSlice("start-join-addrs")
 	c.cfg.Bootstrap = viper.GetBool("bootstrap")
-	c.cfg.ACLModelFile = viper.GetString("acl-mode-file")
+	c.cfg.ACLModelFile = viper.GetString("acl-model-file")
 	c.cfg.ACLPolicyFile = viper.GetString("acl-policy-file")
 	c.cfg.ServerTLSConfig.CertFile = viper.GetString("server-tls-cert-file")
 	c.cfg.ServerTLSConfig.KeyFile = viper.GetString("server-tls-key-file")
@@ -139,16 +139,16 @@ func setupFlags(cmd *cobra.Command) error {
 
 	cmd.Flags().Bool("bootstrap", false, "Bootstrap the cluster.")
 
-	cmd.Flags().String("acl-model-file", config.ACLModelFile, "Path to ACL model.")
-	cmd.Flags().String("acl-policy-file", config.ACLPolicyFile, "Path to ACL policy.")
+	cmd.Flags().String("acl-model-file", "", "Path to ACL model.")
+	cmd.Flags().String("acl-policy-file", "", "Path to ACL policy.")
 
-	cmd.Flags().String("server-tls-cert-file", config.ServerCertFile, "Path to server tls cert.")
-	cmd.Flags().String("server-tls-key-file", config.ServerKeyFile, "Path to server tls key.")
-	cmd.Flags().String("server-tls-ca-file", config.CAFile, "Path to server certificate authority.")
+	cmd.Flags().String("server-tls-cert-file", "", "Path to server tls cert.")
+	cmd.Flags().String("server-tls-key-file", "", "Path to server tls key.")
+	cmd.Flags().String("server-tls-ca-file", "", "Path to server certificate authority.")
 
-	cmd.Flags().String("peer-tls-cert-file", config.RootClientCertFile, "Path to peer tls cert.")
-	cmd.Flags().String("peer-tls-key-file", config.RootClientKeyFile, "Path to peer tls key.")
-	cmd.Flags().String("peer-tls-ca-file", config.CAFile, "Path to peer certificate authority.")
+	cmd.Flags().String("peer-tls-cert-file", "", "Path to peer tls cert.")
+	cmd.Flags().String("peer-tls-key-file", "", "Path to peer tls key.")
+	cmd.Flags().String("peer-tls-ca-file", "", "Path to peer certificate authority.")
 
 	return viper.BindPFlags(cmd.Flags())
 }

@@ -163,7 +163,6 @@ func (a *Agent) setupServer() error {
 		a.Config.ACLModelFile,
 		a.Config.ACLPolicyFile,
 	)
-
 	serverConfig := server.Config{
 		CommitLog:   a.log,
 		Authorizer:  authorizer,
