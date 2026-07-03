@@ -117,6 +117,9 @@ grpc-consume:
 grpc-produce:
 	grpcurl -d '{"record": {"value": "d29ybGQ="}}' -plaintext localhost:8400 log.v1.Log/Produce
 
+.PHONY: get-servers
+get-servers:
+	go run cmd/getservers/main.go
 
 .PHONY: docker-build
 docker-build:
