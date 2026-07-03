@@ -115,7 +115,27 @@ grpc-consume:
 
 .PHONY: grpc-produce
 grpc-produce:
-	grpcurl -d '{"record": {"value": "cHJvY2VzcyB0aGUgdmlkZW8="}}' -plaintext localhost:8402 log.v1.Log/Produce
+	grpcurl -d '{"record": {"value": "aGVsbG8gd29ybGQ="}}' -plaintext localhost:8400 log.v1.Log/Produce
+
+
+.PHONY: grpc-produce-stream
+grpc-produce-stream:
+	{ \
+		echo '{"record":{"value":"Zm9v"}}'; \
+		echo '{"record":{"value":"YmF6"}}'; \
+		echo '{"record":{"value":"YmFy"}}'; \
+	} | grpcurl -plaintext \
+		-d @ \
+		localhost:8400 \
+		log.v1.Log/ProduceStream
+
+.PHONY: grpc-consume-stream
+grpc-consume-stream:
+	grpcurl \
+		-plaintext \
+		-d '{"offset":0}' \
+		localhost:8401 \
+		log.v1.Log/ConsumeStream
 
 .PHONY: get-servers
 get-servers:
