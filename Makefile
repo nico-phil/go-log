@@ -111,11 +111,11 @@ curl-consume:
 
 .PHONY: grpc-consume
 grpc-consume:
-	grpcurl -d '{"offset":0}' -plaintext localhost:8400 log.v1.Log/Consume
+	grpcurl -d '{"offset": 0}' -plaintext localhost:8402 log.v1.Log/Consume
 
 .PHONY: grpc-produce
 grpc-produce:
-	grpcurl -d '{"record": {"value": "d29ybGQ="}}' -plaintext localhost:8400 log.v1.Log/Produce
+	grpcurl -d '{"record": {"value": "cHJvY2VzcyB0aGUgdmlkZW8="}}' -plaintext localhost:8402 log.v1.Log/Produce
 
 .PHONY: get-servers
 get-servers:
@@ -158,3 +158,8 @@ delete-pvcs:
 .PHONY: get-pvcs
 get-pvcs:
 	kubectl get pvc  
+
+.PHONY: forward-port
+forward-port:
+	 kubectl port-forward pod/proglog-0 8400:8400
+
