@@ -58,6 +58,7 @@ func (c *cli) run(cmd *cobra.Command, args []string) error {
 	<-sigc
 
 	return agent.Shutdown()
+	return nil
 }
 
 // setupConfig set configs for the agent
@@ -65,6 +66,7 @@ func (c *cli) setupConfig(cmd *cobra.Command, args []string) error {
 
 	var err error
 	configFile, err := cmd.Flags().GetString("config-file")
+	fmt.Printf("CONFIG FILE: %s\n", configFile)
 	if err != nil {
 		return err
 	}
@@ -92,6 +94,10 @@ func (c *cli) setupConfig(cmd *cobra.Command, args []string) error {
 	c.cfg.PeerTLSConfig.CertFile = viper.GetString("peer-tls-cert-file")
 	c.cfg.PeerTLSConfig.KeyFile = viper.GetString("peer-tls-key-file")
 	c.cfg.PeerTLSConfig.CAFile = viper.GetString("peer-tls-ca-file")
+
+	fmt.Print("PeerTLSConfig.CertFile: ", c.cfg.PeerTLSConfig.CertFile, "\n")
+	fmt.Print("PeerTLSConfig.KeyFile: ", c.cfg.PeerTLSConfig.KeyFile, "\n")
+	fmt.Print("PeerTLSConfig.CAFile: ", c.cfg.PeerTLSConfig.CAFile, "\n")
 
 	if c.cfg.ServerTLSConfig.CertFile != "" &&
 		c.cfg.ServerTLSConfig.KeyFile != "" {
