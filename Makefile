@@ -115,7 +115,7 @@ grpc-consume:
 
 .PHONY: grpc-produce
 grpc-produce:
-	grpcurl -d '{"record": {"value": "aGVsbG8gd29ybGQ="}}' -plaintext localhost:8400 log.v1.Log/Produce
+	grpcurl -d '{"record": {"value": "aGVsbG8gd29ybGQ="}}' -plaintext 127.0.0.1:8400 log.v1.Log/Produce
 
 
 .PHONY: grpc-produce-stream
@@ -182,4 +182,11 @@ get-pvcs:
 .PHONY: forward-port
 forward-port:
 	 kubectl port-forward pod/proglog-0 8400:8400
+
+
+.PHONY: start-cluser
+start-cluser:
+	go run cmd/proglog/main.go --config-file=config_0.yaml &
+	go run cmd/proglog/main.go --config-file=config_1.yaml &
+	go run cmd/proglog/main.go --config-file=config_2.yaml &
 

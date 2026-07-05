@@ -3,3 +3,5 @@
 *.store
 .vscode
 README_files
+data
+data_*

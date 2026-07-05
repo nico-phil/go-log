@@ -1,0 +1,14 @@
+data-dir: data_0
+rpc-port: 8400
+node-name: proglog-0
+bind-addr: 127.0.0.1:7373
+bootstrap: true
+start-join-addrs: []
+server-tls-cert-file: /Users/admin/.proglog/server.pem
+server-tls-key-file: /Users/admin/.proglog/server-key.pem
+server-tls-ca-file: /Users/admin/.proglog/ca.pem
+peer-tls-cert-file: /Users/admin/.proglog/root-client.pem
+peer-tls-key-file: /Users/admin/.proglog/root-client-key.pem
+peer-tls-ca-file: /Users/admin/.proglog/ca.pem
+acl-model-file: /Users/admin/.proglog/model.conf
+acl-policy-file: /Users/admin/.proglog/policy.csv
