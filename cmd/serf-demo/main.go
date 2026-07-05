@@ -28,7 +28,7 @@ func main() {
 	nodeAddr := getEnvVariable("BIND_ADDR")
 	port := getEnvVariable("SERF_PORT")
 
-	joinAddr := getEnvVariable("JOIN_DDR")
+	joinAddr := getEnvVariable("JOIN_ADDR")
 
 	portInt, _ := strconv.Atoi(port)
 
@@ -56,9 +56,9 @@ func main() {
 				for _, m := range ev.Members {
 					switch ev.EventType() {
 					case serf.EventMemberJoin:
-						fmt.Println("[JOIN]: Node joinded:", m.Name, m.Addr)
+						fmt.Println("[JOIN]: Node joinded:", m.Name, m.Addr, m.Port)
 					case serf.EventMemberLeave:
-						fmt.Println("[LEAVE]: Node leave gracefully:", m.Name, m.Addr)
+						fmt.Println("[LEAVE]: Node leave gracefully:", m.Name, m.Addr, m.Port)
 					case serf.EventMemberFailed:
 						fmt.Println("[FAILED]: Node failed:", m.Name, m.Addr)
 					default:
@@ -71,8 +71,43 @@ func main() {
 	}()
 
 	if joinAddr != "" {
-		instance.Join([]string{joinAddr}, false)
+		c, err := instance.Join([]string{joinAddr}, true)
+		if err != nil {
+			fmt.Printf("Failed to join node %s: %v\n", joinAddr, err)
+			panic(err.Error())
+		}
+
+		fmt.Printf("JOINED %d nodes\n", c)
 	}
 
 	select {}
 }
+
+/***
+To run the serf-demo, use following commands in separate terminal windows:
+
+/***
+NODE_NAME=serf-node-1 \
+BIND_ADDR=127.0.0.1 \
+SERF_PORT=7373 \
+go run cmd/serf-demo/main.go
+
+*/
+
+/***
+NODE_NAME=serf-node-2 \
+BIND_ADDR=127.0.0.1 \
+SERF_PORT=7374 \
+JOIN_ADDR=127.0.0.1:7373 \
+go run cmd/serf-demo/main.go
+
+*/
+
+/***
+NODE_NAME=serf-node-3 \
+BIND_ADDR=127.0.0.1 \
+SERF_PORT=7375 \
+JOIN_ADDR=127.0.0.1:7373 \
+go run cmd/serf-demo/main.go
+
+*/
