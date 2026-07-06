@@ -111,7 +111,7 @@ curl-consume:
 
 .PHONY: grpc-consume
 grpc-consume:
-	grpcurl -d '{"offset": 0}' -plaintext localhost:8402 log.v1.Log/Consume
+	grpcurl -d '{"offset": 1}' -plaintext 127.0.0.1:8401 log.v1.Log/Consume
 
 .PHONY: grpc-produce
 grpc-produce:

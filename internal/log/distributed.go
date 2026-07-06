@@ -274,6 +274,8 @@ func (l *DistributedLog) GetServers() ([]*api.Server, error) {
 			RpcAddr:  string(server.Address),
 			IsLeader: l.raft.Leader() == server.Address,
 		})
+
+		fmt.Printf("isLeader: %v, Leader: %v, serverAddress: %v \n", l.raft.Leader() == server.Address, l.raft.Leader(), server.Address)
 	}
 
 	return servers, nil
