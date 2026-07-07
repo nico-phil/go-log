@@ -4,6 +4,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"path"
 	"testing"
 
 	api "github.com/nico-phil/go-log/api/v1"
@@ -15,7 +16,7 @@ func TestSegment(t *testing.T) {
 	c.Segment.MaxStoreBytes = 1024
 	c.Segment.MaxIndexBytes = entryWidth * 3 //36 bytes
 
-	var dir = "./../../proglog"
+	var dir = path.Join("./", "test-proglog")
 	var err error
 	if permamentFile {
 		_, err := os.Stat(dir)

@@ -5,13 +5,13 @@ import (
 	"time"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	"go.opencensus.io/plugin/ocgrpc"
 	"go.opencensus.io/stats/view"
 	"go.opencensus.io/trace"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
+	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	api "github.com/nico-phil/go-log/api/v1"
 	"google.golang.org/grpc"
@@ -137,6 +137,7 @@ func authenticate(ctx context.Context) (context.Context, error) {
 	}
 
 	tlsInfo := peerCtx.AuthInfo.(credentials.TLSInfo)
+
 	subject := tlsInfo.State.VerifiedChains[0][0].Subject.CommonName
 
 	ctx = context.WithValue(ctx, subjectContextKey{}, subject)

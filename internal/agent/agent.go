@@ -186,6 +186,7 @@ func (a *Agent) setupServer() error {
 
 	go func() {
 		if err := a.server.Serve(grpcLn); err != nil {
+			a.logger.Error("Error running grpc server: %v\n", zap.Error(err))
 			_ = a.Shutdown()
 		}
 	}()

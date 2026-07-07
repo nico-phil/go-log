@@ -105,11 +105,11 @@ func SetupTest(t *testing.T) (rootClient api.LogClient, nobodyClient api.LogClie
 	)
 
 	serverTlsConfig, err := config.SetupTLSConfig(config.TLSConfig{
-		CertFile: config.ServerCertFile,
-		KeyFile:  config.ServerKeyFile,
-		CAFile:   config.CAFile,
-		// ServerAddress: lis.Addr().String(),
-		Server: true,
+		CertFile:      config.ServerCertFile,
+		KeyFile:       config.ServerKeyFile,
+		CAFile:        config.CAFile,
+		ServerAddress: lis.Addr().String(),
+		Server:        true,
 	})
 
 	require.NoError(t, err)

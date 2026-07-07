@@ -10,7 +10,7 @@ import (
 var (
 	write         = []byte("hello world")
 	width         = uint64(len(write)) + lenWidth
-	permamentFile = true
+	permamentFile = false
 )
 
 // TestStoreAppenRead tests Append and Read method
