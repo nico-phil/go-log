@@ -8,10 +8,10 @@ import (
 
 // Produce represents the grcp handler to append into the log
 func (s *grpcServer) Produce(ctx context.Context, req *api.ProduceRequest) (*api.ProduceResponse, error) {
-	// sub := subjectGetContext(ctx)
-	// if err := s.Authorizer.Authorize(sub, objectwildCard, produceAction); err != nil {
-	// 	return nil, err
-	// }
+	sub := subjectGetContext(ctx)
+	if err := s.Authorizer.Authorize(sub, objectwildCard, produceAction); err != nil {
+		return nil, err
+	}
 	offset, err := s.CommitLog.Append(req.Record)
 	if err != nil {
 		return nil, err
@@ -22,10 +22,10 @@ func (s *grpcServer) Produce(ctx context.Context, req *api.ProduceRequest) (*api
 
 // Consume represents the grpc handler to read from the log
 func (s *grpcServer) Consume(ctx context.Context, req *api.ConsumeRequest) (*api.ConsumeResponse, error) {
-	// sub := subjectGetContext(ctx)
-	// if err := s.Authorizer.Authorize(sub, objectwildCard, consumeAction); err != nil {
-	// 	return nil, err
-	// }
+	sub := subjectGetContext(ctx)
+	if err := s.Authorizer.Authorize(sub, objectwildCard, consumeAction); err != nil {
+		return nil, err
+	}
 	rec, err := s.CommitLog.Read(uint64(req.Offset))
 	if err != nil {
 		return nil, err
