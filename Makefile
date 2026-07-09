@@ -141,6 +141,14 @@ grpc-consume-stream:
 get-servers:
 	go run cmd/getservers/main.go
 
+.PHONY: consume
+consume:
+	go run cmd/consume/main.go
+
+.PHONY: produce
+produce:
+	go run cmd/produce/main.go
+
 .PHONY: docker-build
 docker-build:
 	docker build -t github.com/nico-phil/proglog:$(TAG) .
@@ -184,8 +192,8 @@ forward-port:
 	 kubectl port-forward pod/proglog-0 8400:8400
 
 
-.PHONY: start-cluser
-start-cluser:
+.PHONY: start-cluster
+start-cluster:
 	go run cmd/proglog/main.go --config-file=config_0.yaml &
 	go run cmd/proglog/main.go --config-file=config_1.yaml &
 	go run cmd/proglog/main.go --config-file=config_2.yaml &
