@@ -113,7 +113,7 @@ func (a *Agent) setupLog() error {
 			return false
 		}
 
-		return bytes.Compare(b, []byte{byte(log.RaftRPC)}) == 0
+		return bytes.Equal(b, []byte{byte(log.RaftRPC)})
 
 	})
 
