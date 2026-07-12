@@ -17,11 +17,17 @@ The project demonstrates how a distributed log can provide **strong consistency*
 - Helm
 - Make
 
-### Run
+### Create cluster
+```bash
+kind create cluster
+```
+
+### Download dependencies
 ```bash
 make tidy
 ```
 
+### Deploy
 ```bash
 make deploy-local
 ```
@@ -41,10 +47,10 @@ proglog-1   1/1     Running   0          142m
 proglog-2   1/1     Running   0          142m
 ```
 
-Forward leader pod to localhost:8400
+### Forward leader pod to localhost:8400
 ```bash
 make forward-port
-````
+```
 
 ### Produce request
 
@@ -52,9 +58,19 @@ make forward-port
 grpcurl -d '{"record": {"value": "aGVsbG8gd29ybGQ="}}' -plaintext localhost:8400 log.v1.Log/Produce
 ```
 
+or run an example request
+```bash
+make produce 
+```
+
 ### Consume request
 ```bash
 grpcurl -d '{"offset": 0}' -plaintext localhost:8401 log.v1.Log/Consume
+```
+
+or run an example request
+```bash
+make consume
 ```
 
 ### Produce stream request
