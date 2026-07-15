@@ -95,6 +95,50 @@ grpcurl \
   log.v1.Log/ConsumeStream
 ```
 
+
+## Running a Three-Node Cluster (Without Kubernetes)
+
+This example starts a cluster with three nodes. Each node uses its own configuration file:
+
+- Node 0 → `config_0.yaml`
+- Node 1 → `config_1.yaml`
+- Node 2 → `config_2.yaml`
+
+Start each node in a separate terminal:
+
+```bash
+go run cmd/proglog/main.go --config-file=config_0.yaml
+go run cmd/proglog/main.go --config-file=config_1.yaml
+go run cmd/proglog/main.go --config-file=config_2.yaml
+```
+
+## Example Configuration
+
+Below is an example configuration for **Node 0** (`config_0.yaml`):
+
+```yaml
+data-dir: data_0
+rpc-port: 8400
+node-name: proglog-0
+bind-addr: 127.0.0.1:7373
+bootstrap: true
+start-join-addrs: []
+
+server-tls-cert-file: /Users/admin/.proglog/server.pem
+server-tls-key-file: /Users/admin/.proglog/server-key.pem
+server-tls-ca-file: /Users/admin/.proglog/ca.pem
+
+peer-tls-cert-file: /Users/admin/.proglog/server.pem
+peer-tls-key-file: /Users/admin/.proglog/server-key.pem
+peer-tls-ca-file: /Users/admin/.proglog/ca.pem
+
+acl-model-file: /Users/admin/.proglog/model.conf
+acl-policy-file: /Users/admin/.proglog/policy.csv
+```
+
+> **Note:** Each node should have its own `data-dir`, `rpc-port`, `node-name`, and `bind-addr`. The TLS and ACL files can be shared by all nodes. Only the bootstrap node should have `bootstrap: true`; all other nodes should set `bootstrap: false` and configure `start-join-addrs` with the bootstrap node's address.
+
+
 ### Run tests
 ```bash
 make test

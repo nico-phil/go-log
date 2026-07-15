@@ -192,8 +192,8 @@ forward-port:
 	 kubectl port-forward pod/proglog-0 8400:8400
 
 
-.PHONY: start-cluster
-start-cluster:
+.PHONY: start-nodes
+start-nodes:
 	go run cmd/proglog/main.go --config-file=config_0.yaml &
 	go run cmd/proglog/main.go --config-file=config_1.yaml &
 	go run cmd/proglog/main.go --config-file=config_2.yaml &

@@ -32,7 +32,7 @@ func main() {
 
 	client := api.NewLogClient(conn)
 
-	resp, err := client.Consume(context.Background(), &api.ConsumeRequest{Offset: 1})
+	resp, err := client.Consume(context.Background(), &api.ConsumeRequest{Offset: 0})
 	if err != nil {
 		fmt.Printf("Error consuming record: %v\n", err)
 		return
