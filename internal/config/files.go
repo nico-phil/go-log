@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 )
@@ -42,6 +41,5 @@ func configFile(filename string) string {
 	}
 
 	p := filepath.Join(homeDir, ".proglog", filename)
-	fmt.Printf("PATH****** %s *******\n", p)
 	return p
 }
