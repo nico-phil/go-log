@@ -1,7 +1,3 @@
-package clientsidelb
+package main
 
-import "fmt"
-
-func main() {
-	fmt.Println("client side load balancing implementation")
-}
+func main() {}
