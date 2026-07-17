@@ -198,3 +198,9 @@ start-nodes:
 	go run cmd/proglog/main.go --config-file=config_1.yaml &
 	go run cmd/proglog/main.go --config-file=config_2.yaml &
 
+.PHONY: clear-data
+clear-data:
+	rm -rf data_0
+	rm -rf data_1
+	rm -rf data_2
+
