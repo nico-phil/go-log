@@ -149,6 +149,14 @@ consume:
 produce:
 	go run cmd/produce/main.go
 
+.PHONY: produce-stream
+produce-stream:
+	go run cmd/produce-stream/main.go
+
+.PHONY: consume-stream
+produce-stream:
+	go run cmd/consume-stream/main.go
+
 .PHONY: docker-build
 docker-build:
 	docker build -t github.com/nico-phil/proglog:$(TAG) .
