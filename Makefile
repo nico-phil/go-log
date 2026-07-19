@@ -154,7 +154,7 @@ produce-stream:
 	go run cmd/produce-stream/main.go
 
 .PHONY: consume-stream
-produce-stream:
+consume-stream:
 	go run cmd/consume-stream/main.go
 
 .PHONY: docker-build
