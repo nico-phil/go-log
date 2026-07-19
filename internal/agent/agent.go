@@ -113,7 +113,8 @@ func (a *Agent) setupLog() error {
 			return false
 		}
 
-		return bytes.Equal(b, []byte{byte(log.RaftRPC)})
+		// check if the first byte is equal to the raft RPC byte, if so, it is a raft connection
+		return bytes.Compare(b, []byte{byte(log.RaftRPC)}) == 0
 
 	})
 
