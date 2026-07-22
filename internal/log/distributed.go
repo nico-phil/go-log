@@ -57,6 +57,7 @@ func (l *DistributedLog) setupLog(dataDir string) error {
 
 // setupRaft configures and creates the server's raft instance
 func (l *DistributedLog) setupRaft(dataDir string) error {
+	// the finite-state machine is the write-ahead-log itself, because we want to replicate the log across the cluster
 	fsm := &fsm{log: l.log}
 
 	logDir := path.Join(dataDir, "raft", "log")
@@ -67,17 +68,21 @@ func (l *DistributedLog) setupRaft(dataDir string) error {
 
 	logConfig := l.config
 	logConfig.Segment.InitialOffset = 1
+
+	// logStore is where raft will store its log
 	logStore, err := newLogStore(logDir, logConfig)
 	if err != nil {
 		return err
 	}
 
+	// stableStore is where raft will store its stable data, like the current term and voted for
 	stableStore, err := raftboltdb.NewBoltStore(filepath.Join(dataDir, "raft", "stable"))
 	if err != nil {
 		return err
 	}
 
 	retain := 1
+	// snapshotStore is where raft will store its snapshots
 	snapshotStore, err := raft.NewFileSnapshotStore(
 		filepath.Join(dataDir, "raft"),
 		retain,
@@ -89,13 +94,14 @@ func (l *DistributedLog) setupRaft(dataDir string) error {
 
 	maxPool := 5
 	timeout := 30 * time.Second
+
+	// transport is where raft will send its messages to other servers
 	transport := raft.NewNetworkTransport(
 		l.config.Raft.StreamLayer,
 		maxPool,
 		timeout,
 		os.Stderr,
 	)
-
 	config := raft.DefaultConfig()
 	config.LocalID = l.config.Raft.LocalID
 
@@ -115,6 +121,10 @@ func (l *DistributedLog) setupRaft(dataDir string) error {
 		config.CommitTimeout = l.config.Raft.CommitTimeout
 	}
 
+	// raft.NewRaft returns a raft instance, the main component of the raft consensus algorithm.
+	// It takes in a config, a finite-state machine, a log store, a stable store, a snapshot store, and a transport.
+	// The raft instance will use these components to manage the state of the distributed log
+	// and ensure that all servers in the cluster have a consistent view of the log.
 	l.raft, err = raft.NewRaft(
 		config,
 		fsm,
@@ -127,6 +137,8 @@ func (l *DistributedLog) setupRaft(dataDir string) error {
 		return err
 	}
 
+	// check if the raft instance has existing state, which means that it has already been bootstrapped and has joined a cluster.
+	// If it does not have existing state, it will need to bootstrap itself and join a cluster.
 	hasState, err := raft.HasExistingState(
 		logStore,
 		stableStore,
