@@ -1,7 +1,6 @@
 #The .PHONY special target in a makefile is used to explicitly declare that a 
 #target name is not a file name, but rather just a name for a sequence of commands 
-#to be executed. This ensures the associated commands run every time the target is 
-#requested, regardless of whether a file with that name exists in the directory. 
+#to be executed.
 
 CONFIG_PATH = ${HOME}/.proglog/
 TEST_NAME = "TestStoreAppenRead"
