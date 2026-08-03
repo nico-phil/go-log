@@ -1,12 +1,20 @@
-# Distributed Write-Ahead Log
+# go-log (Distributed Write-Ahead Log)
 
-fault-tolerant distributed Write-Ahead Log (WAL) built in Go using the Raft consensus algorithm.
+## what is go-log ?
+go-log is fault-tolerant distributed Write-Ahead Log (WAL) built in Go using the Raft consensus algorithm. The system exposes an interface to added and retrive records like producer-consumer format
+
+Write-Ahead Log (WAL) is a safety file where databases record changes to disk before updating the main data. It ensures data is not lost if the server crashes. Systems like PostgreSQL, MYSQL, use it to guarantee reliability. Even Raft uses a WAL to replicate state.
+
+Raft is a distributed consensus protocol that allows a cluster of nodes to agree on the state of a replicated state machine, even in the presence of node failures or temporary network partitions. It is one of the fundamental building blocks of fault-tolerant distributed systems.
+
+# What makes the WAL distriubted?
+It's distributed because the log isn't stored on a single node. Every write is replicated across multiple nodes using the Raft consensus algorithm. The leader coordinates replication, entries are committed only after a majority quorum acknowledges them, every node applies the same sequence of log entries to maintain a consistent replicated state machine, and the cluster can tolerate node failures through leader election and automatic recovery.
 
 The project demonstrates how a distributed log can provide **strong consistency**, **leader election**, **automatic failover**, and **replicated storage** across multiple servers. 
 
 ---
 
-## Deploy to Kubernetes locally
+## Quick Deploy to Kubernetes locally
 
 ### Requirements
 
@@ -22,24 +30,28 @@ The project demonstrates how a distributed log can provide **strong consistency*
 kind create cluster
 ```
 
-### Download dependencies
+### Download the project
 ```bash
+git clone https://github.com/nico-phil/go-log.git
+cd go-log
 make tidy
 ```
 
 ### Deploy
+make deploy-local will automatically:
+- Build the project
+- Contenairized it and load the image into the kubernetes cluster
+- Install The project Helm Chart
 ```bash
 make deploy-local
 ```
 
 Verify that the pods are running:
-
 ```bash
 kubectl get pods
 ```
 
 Example output:
-
 ```text
 NAME        READY   STATUS    RESTARTS   AGE
 proglog-0   1/1     Running   0          142m
@@ -53,7 +65,6 @@ make forward-port
 ```
 
 ### Produce request
-
 ```bash
 grpcurl -d '{"record": {"value": "aGVsbG8gd29ybGQ="}}' -plaintext localhost:8400 log.v1.Log/Produce
 ```
@@ -184,7 +195,6 @@ make test
 
 
 ## Applications
-
 Distributed logs are the foundation of many production systems.
 
 Examples include:
@@ -197,24 +207,6 @@ Examples include:
 - Streaming systems
 - Distributed databases
 - Message queues
-
----
-
-
-## Learning Goals
-
-This project was built to explore:
-
-- distributed systems
-- system programming
-- consensus algorithms
-- fault tolerance
-- leader election
-- distributed storage
-- Kubernetes deployments
-- service discovery
-
-
 ---
 
 ## License

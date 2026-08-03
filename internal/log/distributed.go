@@ -159,7 +159,7 @@ func (l *DistributedLog) setupRaft(dataDir string) error {
 	return err
 }
 
-// Append appends a record to the log.We do not append the record directly, we tell raft to apply the command
+// Append appends a record to the log We do not append the record directly, we tell raft to apply the command
 func (l *DistributedLog) Append(record *api.Record) (uint64, error) {
 	res, err := l.apply(
 		AppendRequestType,
